@@ -9,27 +9,19 @@
 
 body{
 margin:0;
-background:#000;
+background:black;
 font-family:Arial;
 overflow:hidden;
 color:white;
 }
 
-h1{
+#panel{
 position:absolute;
-top:10px;
-left:20px;
-z-index:10;
-color:#00d4ff;
-}
-
-#controls{
-position:absolute;
-top:70px;
+top:20px;
 left:20px;
 z-index:10;
 background:#111;
-padding:15px;
+padding:20px;
 border-radius:10px;
 border:1px solid #333;
 }
@@ -38,10 +30,10 @@ input{
 display:block;
 margin-top:10px;
 padding:10px;
+width:220px;
 background:#222;
 border:1px solid #444;
 color:white;
-width:220px;
 }
 
 button{
@@ -57,7 +49,6 @@ cursor:pointer;
 svg{
 width:100vw;
 height:100vh;
-background:black;
 cursor:grab;
 }
 
@@ -65,6 +56,7 @@ cursor:grab;
 fill:#00d4ff;
 stroke:white;
 stroke-width:2;
+cursor:pointer;
 }
 
 .label{
@@ -77,11 +69,12 @@ pointer-events:none;
 .arrow{
 stroke:white;
 stroke-width:4;
+fill:none;
 }
 
 .enzyme{
 fill:#00ff88;
-font-size:22px;
+font-size:20px;
 text-anchor:middle;
 }
 
@@ -91,9 +84,9 @@ text-anchor:middle;
 
 <body>
 
-<h1>BioChamp Pathway Viewer</h1>
+<div id="panel">
 
-<div id="controls">
+<h2>BioChamp</h2>
 
 <input id="mol1" placeholder="First Metabolite">
 
@@ -101,8 +94,20 @@ text-anchor:middle;
 
 <input id="mol2" placeholder="Second Metabolite">
 
-<button onclick="createPathway()">
-Create Pathway
+<button onclick="createLinear()">
+Create Linear
+</button>
+
+<button onclick="createCircular()">
+Create Circular
+</button>
+
+<button onclick="saveData()">
+Save
+</button>
+
+<button onclick="loadData()">
+Load
 </button>
 
 </div>
@@ -122,8 +127,11 @@ let scale=1;
 let panX=0;
 let panY=0;
 
-let isDragging=false;
+let isDraggingCanvas=false;
+
 let startX,startY;
+
+let pathways=[];
 
 function updateTransform(){
 
@@ -151,25 +159,24 @@ updateTransform();
 
 svg.addEventListener("mousedown",(e)=>{
 
-isDragging=true;
+if(e.target.classList.contains("node")) return;
+
+isDraggingCanvas=true;
 
 startX=e.clientX-panX;
 startY=e.clientY-panY;
-
-svg.style.cursor="grabbing";
 
 });
 
 svg.addEventListener("mouseup",()=>{
 
-isDragging=false;
-svg.style.cursor="grab";
+isDraggingCanvas=false;
 
 });
 
 svg.addEventListener("mousemove",(e)=>{
 
-if(!isDragging) return;
+if(!isDraggingCanvas) return;
 
 panX=e.clientX-startX;
 panY=e.clientY-startY;
@@ -178,87 +185,120 @@ updateTransform();
 
 });
 
-let pathwayDatabase=[];
-
-function createPathway(){
+function createLinear(){
 
 let mol1=document.getElementById("mol1").value;
 let enzyme=document.getElementById("enzyme").value;
 let mol2=document.getElementById("mol2").value;
 
-let pathway={
-molecule1:mol1,
-enzyme:enzyme,
-molecule2:mol2
-};
+pathways.push({
+type:"linear",
+mol1,
+enzyme,
+mol2,
+x1:200,
+y1:200+pathways.length*250,
+x2:700,
+y2:200+pathways.length*250
+});
 
-pathwayDatabase.push(pathway);
-
-renderPathways();
+render();
 
 }
 
-function renderPathways(){
+function createCircular(){
+
+let radius=250;
+let centerX=900;
+let centerY=500;
+
+let nodes=[];
+
+for(let i=0;i<8;i++){
+
+let angle=(Math.PI*2/8)*i;
+
+nodes.push({
+x:centerX+Math.cos(angle)*radius,
+y:centerY+Math.sin(angle)*radius,
+name:"Node "+(i+1)
+});
+
+}
+
+pathways.push({
+type:"circular",
+nodes:nodes
+});
+
+render();
+
+}
+
+function render(){
 
 canvas.innerHTML="";
 
-pathwayDatabase.forEach((p,index)=>{
+pathways.forEach((p,index)=>{
 
-let offsetY=index*250;
+if(p.type==="linear"){
 
-canvas.innerHTML += `
+canvas.innerHTML+=`
 
 <line
-x1="350"
-y1="${350+offsetY}"
-x2="800"
-y2="${350+offsetY}"
+x1="${p.x1+80}"
+y1="${p.y1}"
+x2="${p.x2-80}"
+y2="${p.y2}"
 class="arrow"
 />
 
 <polygon
 points="
-800,${350+offsetY}
-770,${335+offsetY}
-770,${365+offsetY}"
+${p.x2-80},${p.y2}
+${p.x2-110},${p.y2-15}
+${p.x2-110},${p.y2+15}"
 fill="white"
 />
 
 <circle
-cx="250"
-cy="${350+offsetY}"
+cx="${p.x1}"
+cy="${p.y1}"
 r="70"
 class="node"
+onmousedown="dragNode(evt,this,${index},'x1','y1')"
 />
 
 <text
-x="250"
-y="${355+offsetY}"
+x="${p.x1}"
+y="${p.y1+5}"
 class="label"
 >
-${p.molecule1}
+${p.mol1}
 </text>
 
 <circle
-cx="920"
-cy="${350+offsetY}"
+cx="${p.x2}"
+cy="${p.y2}"
 r="70"
 fill="#ff9800"
 stroke="white"
 stroke-width="2"
+class="node"
+onmousedown="dragNode(evt,this,${index},'x2','y2')"
 />
 
 <text
-x="920"
-y="${355+offsetY}"
+x="${p.x2}"
+y="${p.y2+5}"
 class="label"
 >
-${p.molecule2}
+${p.mol2}
 </text>
 
 <text
-x="575"
-y="${300+offsetY}"
+x="${(p.x1+p.x2)/2}"
+y="${p.y1-60}"
 class="enzyme"
 >
 ${p.enzyme}
@@ -266,7 +306,110 @@ ${p.enzyme}
 
 `;
 
+}
+
+if(p.type==="circular"){
+
+for(let i=0;i<p.nodes.length;i++){
+
+let n1=p.nodes[i];
+let n2=p.nodes[(i+1)%p.nodes.length];
+
+canvas.innerHTML+=`
+
+<line
+x1="${n1.x}"
+y1="${n1.y}"
+x2="${n2.x}"
+y2="${n2.y}"
+class="arrow"
+/>
+
+<circle
+cx="${n1.x}"
+cy="${n1.y}"
+r="50"
+class="node"
+/>
+
+<text
+x="${n1.x}"
+y="${n1.y+5}"
+class="label"
+>
+${n1.name}
+</text>
+
+`;
+
+}
+
+}
+
 });
+
+updateTransform();
+
+}
+
+let dragInfo=null;
+
+function dragNode(evt,element,index,xKey,yKey){
+
+evt.stopPropagation();
+
+dragInfo={
+index,
+xKey,
+yKey
+};
+
+}
+
+window.addEventListener("mousemove",(e)=>{
+
+if(!dragInfo) return;
+
+pathways[dragInfo.index][dragInfo.xKey]=
+(e.clientX-panX)/scale;
+
+pathways[dragInfo.index][dragInfo.yKey]=
+(e.clientY-panY)/scale;
+
+render();
+
+});
+
+window.addEventListener("mouseup",()=>{
+
+dragInfo=null;
+
+});
+
+function saveData(){
+
+localStorage.setItem(
+"biochampData",
+JSON.stringify(pathways)
+);
+
+alert("Saved");
+
+}
+
+function loadData(){
+
+let data=localStorage.getItem("biochampData");
+
+if(data){
+
+pathways=JSON.parse(data);
+
+render();
+
+alert("Loaded");
+
+}
 
 }
 
