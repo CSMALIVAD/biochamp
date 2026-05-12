@@ -6,22 +6,27 @@ render
 }
 from "./renderer.js";
 
+
+// ======================
+// ADMIN LOGIN
+// ======================
+
 export function adminLogin(){
 
-const pass=
+const password =
 prompt(
-"Enter Password"
+"Enter Admin Password"
 );
 
-if(pass==="biochamp"){
+if(password === "biochamp"){
 
-state.adminMode=true;
+state.adminMode = true;
 
 document
 .getElementById(
 "adminBar"
 )
-.style.display="block";
+.style.display = "block";
 
 alert(
 "Admin Mode Enabled"
@@ -30,52 +35,76 @@ alert(
 }
 else{
 
-alert("Wrong Password");
+alert(
+"Wrong Password"
+);
 
 }
 
 }
 
 
+// ======================
 // SELECT OBJECT
+// ======================
 
-window.selectObject=function(id){
+window.selectObject = function(id){
 
 if(!state.adminMode)
 return;
 
-const obj=
+const obj =
 state.objects.find(
-o=>o.id==id
+o => o.id == id
 );
 
 if(!obj) return;
 
-state.selectedObject=obj;
+state.selectedObject = obj;
+
+
+// LABEL
 
 document
 .getElementById(
 "editLabel"
 )
-.value=obj.label;
+.value = obj.label || "";
+
+
+// COLOR
 
 document
 .getElementById(
 "editColor"
 )
-.value=obj.fill;
+.value = obj.fill || "#ffffff";
+
+
+// SHAPE
+
+document
+.getElementById(
+"editShape"
+)
+.value = obj.shape || "rect";
 
 };
 
 
+// ======================
 // APPLY CHANGES
+// ======================
 
 export function applyChanges(){
 
 if(!state.selectedObject)
 return;
 
-state.selectedObject.label=
+
+// UPDATE LABEL
+
+state.selectedObject.label =
 
 document
 .getElementById(
@@ -83,13 +112,30 @@ document
 )
 .value;
 
-state.selectedObject.fill=
+
+// UPDATE COLOR
+
+state.selectedObject.fill =
 
 document
 .getElementById(
 "editColor"
 )
 .value;
+
+
+// UPDATE SHAPE
+
+state.selectedObject.shape =
+
+document
+.getElementById(
+"editShape"
+)
+.value;
+
+
+// RERENDER
 
 render();
 
