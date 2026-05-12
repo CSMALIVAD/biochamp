@@ -1,11 +1,6 @@
 import { state }
 from "./state.js";
 
-import {
-getBoxWidth
-}
-from "./utils.js";
-
 const canvas=
 document.getElementById(
 "canvas"
@@ -15,212 +10,196 @@ export function render(){
 
 canvas.innerHTML="";
 
-state.pathways.forEach((p,index)=>{
+renderConnections();
 
-const leftWidth=
-getBoxWidth(p.mol1);
+renderObjects();
 
-const rightWidth=
-getBoxWidth(p.mol2);
+updateTransform();
+
+}
+
+
+function renderConnections(){
+
+const metabolites=
+state.objects.filter(
+o=>o.type==="metabolite"
+);
+
+for(let i=0;i<metabolites.length-1;i+=2){
+
+const left=
+metabolites[i];
+
+const right=
+metabolites[i+1];
+
+if(!left || !right)
+continue;
 
 canvas.innerHTML += `
 
-<!-- ARROW -->
-
 <line
 
-x1="${p.x1+leftWidth/2}"
+x1="${left.x+left.width/2}"
 
-y1="${p.y1}"
+y1="${left.y}"
 
-x2="${p.x2-rightWidth/2}"
+x2="${right.x-right.width/2}"
 
-y2="${p.y2}"
+y2="${right.y}"
 
 class="arrow"
 
 />
 
+`;
 
-<!-- LEFT NODE -->
+}
+
+}
+
+
+function renderObjects(){
+
+state.objects.forEach(obj=>{
+
+// METABOLITE
+
+if(obj.type==="metabolite"){
+
+canvas.innerHTML += `
 
 <rect
 
-x="${p.x1-leftWidth/2}"
+x="${obj.x-obj.width/2}"
 
-y="${p.y1-50}"
+y="${obj.y-obj.height/2}"
 
-width="${leftWidth}"
+width="${obj.width}"
 
-height="100"
+height="${obj.height}"
 
 rx="20"
 
-fill="${p.leftColor}"
+fill="${obj.fill}"
 
 class="node"
 
-data-side="left"
+data-id="${obj.id}"
 
-data-index="${index}"
-
-onclick="selectObject('left',${index})"
+onclick="selectObject('${obj.id}')"
 
 />
 
 <text
 
-x="${p.x1}"
+x="${obj.x}"
 
-y="${p.y1+10}"
-
-class="label"
-
->
-
-${p.mol1}
-
-</text>
-
-
-<!-- RIGHT NODE -->
-
-<rect
-
-x="${p.x2-rightWidth/2}"
-
-y="${p.y2-50}"
-
-width="${rightWidth}"
-
-height="100"
-
-rx="20"
-
-fill="${p.rightColor}"
-
-class="node"
-
-data-side="right"
-
-data-index="${index}"
-
-onclick="selectObject('right',${index})"
-
-/>
-
-<text
-
-x="${p.x2}"
-
-y="${p.y2+10}"
+y="${obj.y+10}"
 
 class="label"
 
 >
 
-${p.mol2}
-
-</text>
-
-
-<!-- ENZYME -->
-
-<text
-
-x="${(p.x1+p.x2)/2}"
-
-y="${p.y1-70}"
-
-class="enzyme"
-
->
-
-${p.enzyme}
-
-</text>
-
-
-<!-- COFACTOR INPUT -->
-
-<rect
-
-x="${((p.x1+p.x2)/2)-80}"
-
-y="${p.y1-180}"
-
-width="160"
-
-height="60"
-
-rx="12"
-
-fill="#9c27b0"
-
-stroke="white"
-
-stroke-width="2"
-
-/>
-
-<text
-
-x="${(p.x1+p.x2)/2}"
-
-y="${p.y1-142}"
-
-class="label"
-
->
-
-${p.coIn}
-
-</text>
-
-
-<!-- COFACTOR OUTPUT -->
-
-<rect
-
-x="${((p.x1+p.x2)/2)-80}"
-
-y="${p.y1+120}"
-
-width="160"
-
-height="60"
-
-rx="12"
-
-fill="#673ab7"
-
-stroke="white"
-
-stroke-width="2"
-
-/>
-
-<text
-
-x="${(p.x1+p.x2)/2}"
-
-y="${p.y1+158}"
-
-class="label"
-
->
-
-${p.coOut}
+${obj.label}
 
 </text>
 
 `;
 
-});
+}
 
-updateTransform();
+
+// COFACTOR
+
+if(obj.type==="cofactor"){
+
+canvas.innerHTML += `
+
+<rect
+
+x="${obj.x-obj.width/2}"
+
+y="${obj.y-obj.height/2}"
+
+width="${obj.width}"
+
+height="${obj.height}"
+
+rx="12"
+
+fill="${obj.fill}"
+
+stroke="white"
+
+stroke-width="2"
+
+class="node"
+
+data-id="${obj.id}"
+
+onclick="selectObject('${obj.id}')"
+
+/>
+
+<text
+
+x="${obj.x}"
+
+y="${obj.y+8}"
+
+class="label"
+
+>
+
+${obj.label}
+
+</text>
+
+`;
 
 }
+
+
+// ENZYME
+
+if(obj.type==="enzyme"){
+
+canvas.innerHTML += `
+
+<text
+
+x="${obj.x}"
+
+y="${obj.y}"
+
+fill="${obj.fill}"
+
+font-size="26"
+
+text-anchor="middle"
+
+class="node"
+
+data-id="${obj.id}"
+
+onclick="selectObject('${obj.id}')"
+
+>
+
+${obj.label}
+
+</text>
+
+`;
+
+}
+
+});
+
+}
+
 
 export function updateTransform(){
 
