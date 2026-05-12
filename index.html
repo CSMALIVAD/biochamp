@@ -57,7 +57,6 @@ cursor:grab;
 }
 
 .node{
-fill:#00d4ff;
 stroke:white;
 stroke-width:2;
 cursor:pointer;
@@ -80,6 +79,7 @@ fill:none;
 fill:#00ff88;
 font-size:20px;
 text-anchor:middle;
+pointer-events:none;
 }
 
 </style>
@@ -137,6 +137,8 @@ let startX,startY;
 
 let pathways=[];
 
+let dragData=null;
+
 function updateTransform(){
 
 canvas.setAttribute(
@@ -163,6 +165,18 @@ updateTransform();
 
 svg.addEventListener("mousedown",(e)=>{
 
+if(e.target.dataset.type){
+
+dragData={
+type:e.target.dataset.type,
+pathway:parseInt(e.target.dataset.pathway),
+node:parseInt(e.target.dataset.node)
+};
+
+return;
+
+}
+
 isDraggingCanvas=true;
 
 startX=e.clientX-panX;
@@ -172,11 +186,46 @@ startY=e.clientY-panY;
 
 window.addEventListener("mouseup",()=>{
 
+dragData=null;
 isDraggingCanvas=false;
 
 });
 
 window.addEventListener("mousemove",(e)=>{
+
+if(dragData){
+
+let mouseX=(e.clientX-panX)/scale;
+let mouseY=(e.clientY-panY)/scale;
+
+let p=pathways[dragData.pathway];
+
+if(dragData.type==="linear-left"){
+
+p.x1=mouseX;
+p.y1=mouseY;
+
+}
+
+if(dragData.type==="linear-right"){
+
+p.x2=mouseX;
+p.y2=mouseY;
+
+}
+
+if(dragData.type==="circle-node"){
+
+p.nodes[dragData.node].x=mouseX;
+p.nodes[dragData.node].y=mouseY;
+
+}
+
+render();
+
+return;
+
+}
 
 if(!isDraggingCanvas) return;
 
@@ -214,6 +263,21 @@ let radius=250;
 let centerX=900;
 let centerY=500;
 
+let mol1=document.getElementById("mol1").value;
+let enzyme=document.getElementById("enzyme").value;
+let mol2=document.getElementById("mol2").value;
+
+let names=[
+mol1,
+mol2,
+"Intermediate 1",
+"Intermediate 2",
+"Intermediate 3",
+"Intermediate 4",
+"Intermediate 5",
+enzyme
+];
+
 let nodes=[];
 
 for(let i=0;i<8;i++){
@@ -223,7 +287,7 @@ let angle=(Math.PI*2/8)*i;
 nodes.push({
 x:centerX+Math.cos(angle)*radius,
 y:centerY+Math.sin(angle)*radius,
-name:"Node "+(i+1)
+name:names[i]
 });
 
 }
@@ -241,7 +305,7 @@ function render(){
 
 canvas.innerHTML="";
 
-pathways.forEach((p)=>{
+pathways.forEach((p,pIndex)=>{
 
 if(p.type==="linear"){
 
@@ -275,6 +339,8 @@ fill="#00d4ff"
 stroke="white"
 stroke-width="2"
 class="node"
+data-type="linear-left"
+data-pathway="${pIndex}"
 />
 
 <text
@@ -297,6 +363,8 @@ fill="#ff9800"
 stroke="white"
 stroke-width="2"
 class="node"
+data-type="linear-right"
+data-pathway="${pIndex}"
 />
 
 <text
@@ -338,11 +406,19 @@ y2="${n2.y}"
 class="arrow"
 />
 
-<circle
-cx="${n1.x}"
-cy="${n1.y}"
-r="55"
+<rect
+x="${n1.x-60}"
+y="${n1.y-35}"
+width="120"
+height="70"
+rx="15"
+fill="#00d4ff"
+stroke="white"
+stroke-width="2"
 class="node"
+data-type="circle-node"
+data-pathway="${pIndex}"
+data-node="${i}"
 />
 
 <text
