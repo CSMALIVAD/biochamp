@@ -1,14 +1,19 @@
 import { state }
 from "./state.js";
 
-const canvas=
+const canvas =
 document.getElementById(
 "canvas"
 );
 
+
+// ======================
+// MAIN RENDER
+// ======================
+
 export function render(){
 
-canvas.innerHTML="";
+canvas.innerHTML = "";
 
 renderConnections();
 
@@ -25,17 +30,21 @@ updateTransform();
 
 function renderConnections(){
 
-const metabolites=
+const metabolites =
 state.objects.filter(
-o=>o.type==="metabolite"
+o => o.type === "metabolite"
 );
 
-for(let i=0;i<metabolites.length-1;i+=2){
+for(
+let i=0;
+i<metabolites.length-1;
+i+=2
+){
 
-const left=
+const left =
 metabolites[i];
 
-const right=
+const right =
 metabolites[i+1];
 
 if(!left || !right)
@@ -45,11 +54,11 @@ canvas.innerHTML += `
 
 <line
 
-x1="${left.x+left.width/2}"
+x1="${left.x + left.width/2}"
 
 y1="${left.y}"
 
-x2="${right.x-right.width/2}"
+x2="${right.x - right.width/2}"
 
 y2="${right.y}"
 
@@ -74,7 +83,7 @@ state.objects.forEach(obj=>{
 
 
 // ===================
-// ENZYME
+// ENZYME TEXT
 // ===================
 
 if(obj.type==="enzyme"){
@@ -89,7 +98,7 @@ y="${obj.y}"
 
 fill="${obj.fill}"
 
-font-size="26"
+font-size="28"
 
 text-anchor="middle"
 
@@ -113,35 +122,35 @@ return;
 
 
 // ===================
-// SHAPE SETTINGS
+// SHAPE LOGIC
 // ===================
 
-let rx=20;
+let rx = 20;
 
-if(obj.shape==="circle"){
+if(obj.shape === "circle"){
 
-rx=1000;
+rx = 1000;
 
 }
 
-if(obj.shape==="pill"){
+if(obj.shape === "pill"){
 
-rx=50;
+rx = 60;
 
 }
 
 
 // ===================
-// RECT/CIRCLE
+// DRAW OBJECT
 // ===================
 
 canvas.innerHTML += `
 
 <rect
 
-x="${obj.x-obj.width/2}"
+x="${obj.x - obj.width/2}"
 
-y="${obj.y-obj.height/2}"
+y="${obj.y - obj.height/2}"
 
 width="${obj.width}"
 
@@ -167,7 +176,7 @@ onclick="selectObject('${obj.id}')"
 
 x="${obj.x}"
 
-y="${obj.y+8}"
+y="${obj.y + 8}"
 
 class="label"
 
