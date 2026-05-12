@@ -1,6 +1,6 @@
 export const state={
 
-pathways:[],
+objects:[],
 
 selectedObject:null,
 
@@ -12,9 +12,9 @@ panX:0,
 
 panY:0,
 
-isDragging:false,
+isDraggingCanvas:false,
 
-dragNode:null,
+dragObject:null,
 
 startX:0,
 
