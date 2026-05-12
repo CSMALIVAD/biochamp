@@ -3,16 +3,25 @@
 
 <head>
 
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
 <title>BioChamp</title>
 
 <link
 rel="stylesheet"
 href="css/style.css"
->
+/>
 
 </head>
 
 <body>
+
+<!-- LEFT CONTROL PANEL -->
 
 <div id="panel">
 
@@ -21,25 +30,103 @@ href="css/style.css"
 <input
 id="mol1"
 placeholder="First Metabolite"
->
+/>
 
 <input
 id="enzyme"
 placeholder="Enzyme"
->
+/>
 
 <input
 id="mol2"
 placeholder="Second Metabolite"
->
+/>
+
+<input
+id="coIn"
+placeholder="Cofactor Input"
+/>
+
+<input
+id="coOut"
+placeholder="Cofactor Output"
+/>
 
 <button id="linearBtn">
 Create Linear
 </button>
 
+<button id="saveBtn">
+Save
+</button>
+
+<button id="loadBtn">
+Load
+</button>
+
+<button id="adminBtn">
+Admin Login
+</button>
+
 </div>
 
+<!-- RIGHT ADMIN PANEL -->
+
+<div id="adminBar">
+
+<h2>Object Editor</h2>
+
+<input
+id="editLabel"
+placeholder="Edit Label"
+/>
+
+<input
+id="editColor"
+placeholder="Color"
+/>
+
+<select id="editShape">
+
+<option value="rect">
+Rectangle
+</option>
+
+<option value="circle">
+Circle
+</option>
+
+</select>
+
+<button id="applyBtn">
+Apply Changes
+</button>
+
+</div>
+
+<!-- SVG VIEWER -->
+
 <svg id="viewer">
+
+<defs>
+
+<marker
+id="arrowhead"
+markerWidth="12"
+markerHeight="8"
+refX="10"
+refY="4"
+orient="auto"
+>
+
+<polygon
+points="0 0, 12 4, 0 8"
+fill="white"
+/>
+
+</marker>
+
+</defs>
 
 <g id="canvas"></g>
 
