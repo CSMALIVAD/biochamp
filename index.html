@@ -28,7 +28,6 @@ border:1px solid #333;
 
 h2{
 margin-top:0;
-color:#00d4ff;
 }
 
 input{
@@ -58,6 +57,7 @@ cursor:grab;
 }
 
 .node{
+fill:#00d4ff;
 stroke:white;
 stroke-width:2;
 cursor:pointer;
@@ -80,7 +80,6 @@ fill:none;
 fill:#00ff88;
 font-size:20px;
 text-anchor:middle;
-pointer-events:none;
 }
 
 </style>
@@ -100,7 +99,11 @@ pointer-events:none;
 <input id="mol2" placeholder="Second Metabolite">
 
 <button onclick="createLinear()">
-Create Pathway
+Create Linear
+</button>
+
+<button onclick="createCircular()">
+Create Circular
 </button>
 
 <button onclick="saveData()">
@@ -134,8 +137,6 @@ let startX,startY;
 
 let pathways=[];
 
-let dragNodeData=null;
-
 function updateTransform(){
 
 canvas.setAttribute(
@@ -162,17 +163,6 @@ updateTransform();
 
 svg.addEventListener("mousedown",(e)=>{
 
-if(e.target.classList.contains("draggable")){
-
-dragNodeData={
-id:e.target.dataset.id,
-side:e.target.dataset.side
-};
-
-return;
-
-}
-
 isDraggingCanvas=true;
 
 startX=e.clientX-panX;
@@ -182,42 +172,11 @@ startY=e.clientY-panY;
 
 window.addEventListener("mouseup",()=>{
 
-dragNodeData=null;
 isDraggingCanvas=false;
 
 });
 
 window.addEventListener("mousemove",(e)=>{
-
-if(dragNodeData){
-
-let node=pathways.find(
-p=>p.id==dragNodeData.id
-);
-
-if(node){
-
-if(dragNodeData.side==="left"){
-
-node.x1=(e.clientX-panX)/scale;
-node.y1=(e.clientY-panY)/scale;
-
-}
-
-if(dragNodeData.side==="right"){
-
-node.x2=(e.clientX-panX)/scale;
-node.y2=(e.clientY-panY)/scale;
-
-}
-
-render();
-
-}
-
-return;
-
-}
 
 if(!isDraggingCanvas) return;
 
@@ -234,36 +193,44 @@ let mol1=document.getElementById("mol1").value;
 let enzyme=document.getElementById("enzyme").value;
 let mol2=document.getElementById("mol2").value;
 
-let reversible=confirm(
-"Reversible reaction?"
-);
-
-let previous=pathways[pathways.length-1];
-
-let x1=200;
-let y1=200;
-
-if(previous){
-
-x1=previous.x2+300;
-y1=previous.y2;
-
-}
-
-let x2=x1+400;
-let y2=y1;
-
 pathways.push({
-id:Date.now()+Math.random(),
 type:"linear",
 mol1,
 enzyme,
 mol2,
-reversible,
-x1,
-y1,
-x2,
-y2
+x1:200,
+y1:200+pathways.length*250,
+x2:700,
+y2:200+pathways.length*250
+});
+
+render();
+
+}
+
+function createCircular(){
+
+let radius=250;
+let centerX=900;
+let centerY=500;
+
+let nodes=[];
+
+for(let i=0;i<8;i++){
+
+let angle=(Math.PI*2/8)*i;
+
+nodes.push({
+x:centerX+Math.cos(angle)*radius,
+y:centerY+Math.sin(angle)*radius,
+name:"Node "+(i+1)
+});
+
+}
+
+pathways.push({
+type:"circular",
+nodes:nodes
 });
 
 render();
@@ -276,50 +243,9 @@ canvas.innerHTML="";
 
 pathways.forEach((p)=>{
 
+if(p.type==="linear"){
+
 canvas.innerHTML += `
-
-${
-p.reversible ?
-
-`
-
-<line
-x1="${p.x1+90}"
-y1="${p.y1-12}"
-x2="${p.x2-90}"
-y2="${p.y2-12}"
-class="arrow"
-/>
-
-<polygon
-points="
-${p.x2-90},${p.y2-12}
-${p.x2-120},${p.y2-27}
-${p.x2-120},${p.y2+3}"
-fill="white"
-/>
-
-<line
-x1="${p.x2-90}"
-y1="${p.y2+12}"
-x2="${p.x1+90}"
-y2="${p.y1+12}"
-class="arrow"
-/>
-
-<polygon
-points="
-${p.x1+90},${p.y1+12}
-${p.x1+120},${p.y1-3}
-${p.x1+120},${p.y1+27}"
-fill="white"
-/>
-
-`
-
-:
-
-`
 
 <line
 x1="${p.x1+90}"
@@ -337,10 +263,6 @@ ${p.x2-120},${p.y2+15}"
 fill="white"
 />
 
-`
-
-}
-
 <!-- LEFT NODE -->
 
 <rect
@@ -350,9 +272,9 @@ width="180"
 height="90"
 rx="15"
 fill="#00d4ff"
-class="node draggable"
-data-id="${p.id}"
-data-side="left"
+stroke="white"
+stroke-width="2"
+class="node"
 />
 
 <text
@@ -372,9 +294,9 @@ width="180"
 height="90"
 rx="15"
 fill="#ff9800"
-class="node draggable"
-data-id="${p.id}"
-data-side="right"
+stroke="white"
+stroke-width="2"
+class="node"
 />
 
 <text
@@ -396,6 +318,46 @@ ${p.enzyme}
 </text>
 
 `;
+
+}
+
+if(p.type==="circular"){
+
+for(let i=0;i<p.nodes.length;i++){
+
+let n1=p.nodes[i];
+let n2=p.nodes[(i+1)%p.nodes.length];
+
+canvas.innerHTML += `
+
+<line
+x1="${n1.x}"
+y1="${n1.y}"
+x2="${n2.x}"
+y2="${n2.y}"
+class="arrow"
+/>
+
+<circle
+cx="${n1.x}"
+cy="${n1.y}"
+r="55"
+class="node"
+/>
+
+<text
+x="${n1.x}"
+y="${n1.y+5}"
+class="label"
+>
+${n1.name}
+</text>
+
+`;
+
+}
+
+}
 
 });
 
