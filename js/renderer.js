@@ -82,9 +82,7 @@ function renderObjects(){
 state.objects.forEach(obj=>{
 
 
-// ===================
-// ENZYME TEXT
-// ===================
+// ENZYME
 
 if(obj.type==="enzyme"){
 
@@ -121,28 +119,24 @@ return;
 }
 
 
-// ===================
-// SHAPE LOGIC
-// ===================
+// SHAPE SYSTEM
 
 let rx = 20;
 
-if(obj.shape === "circle"){
+if(obj.shape==="circle"){
 
 rx = 1000;
 
 }
 
-if(obj.shape === "pill"){
+if(obj.shape==="pill"){
 
 rx = 60;
 
 }
 
 
-// ===================
-// DRAW OBJECT
-// ===================
+// MAIN OBJECT
 
 canvas.innerHTML += `
 
