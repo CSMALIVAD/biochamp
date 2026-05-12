@@ -20,71 +20,180 @@ from "./admin.js";
 
 import "./interactions.js";
 
-const linearBtn=
-document.getElementById(
-"linearBtn"
-);
 
-linearBtn.onclick=function(){
+// =====================
+// CREATE PATHWAY
+// =====================
+
+document
+.getElementById(
+"linearBtn"
+)
+.onclick=function(){
 
 const mol1=
-document.getElementById(
+document
+.getElementById(
 "mol1"
 ).value;
 
 const enzyme=
-document.getElementById(
+document
+.getElementById(
 "enzyme"
 ).value;
 
 const mol2=
-document.getElementById(
+document
+.getElementById(
 "mol2"
 ).value;
 
 const coIn=
-document.getElementById(
+document
+.getElementById(
 "coIn"
 ).value;
 
 const coOut=
-document.getElementById(
+document
+.getElementById(
 "coOut"
 ).value;
 
-state.pathways.push({
 
-id:Date.now(),
+// LEFT NODE
 
-mol1,
-mol2,
-enzyme,
-coIn,
-coOut,
+state.objects.push({
 
-x1:500,
+id:Date.now()+"a",
 
-y1:
+type:"metabolite",
+
+label:mol1,
+
+x:500,
+
+y:
 300 +
-state.pathways.length
-*250,
+state.objects.length
+*40,
 
-x2:1200,
+width:220,
 
-y2:
-300 +
-state.pathways.length
-*250,
+height:100,
 
-leftColor:"#00d4ff",
-
-rightColor:"#ff9800"
+fill:"#00d4ff"
 
 });
+
+
+// RIGHT NODE
+
+state.objects.push({
+
+id:Date.now()+"b",
+
+type:"metabolite",
+
+label:mol2,
+
+x:1200,
+
+y:
+300 +
+state.objects.length
+*40,
+
+width:220,
+
+height:100,
+
+fill:"#ff9800"
+
+});
+
+
+// ENZYME
+
+state.objects.push({
+
+id:Date.now()+"c",
+
+type:"enzyme",
+
+label:enzyme,
+
+x:850,
+
+y:
+220 +
+state.objects.length
+*40,
+
+fill:"#00ff88"
+
+});
+
+
+// COFACTOR INPUT
+
+state.objects.push({
+
+id:Date.now()+"d",
+
+type:"cofactor",
+
+label:coIn,
+
+x:850,
+
+y:
+120 +
+state.objects.length
+*40,
+
+width:180,
+
+height:60,
+
+fill:"#9c27b0"
+
+});
+
+
+// COFACTOR OUTPUT
+
+state.objects.push({
+
+id:Date.now()+"e",
+
+type:"cofactor",
+
+label:coOut,
+
+x:850,
+
+y:
+450 +
+state.objects.length
+*40,
+
+width:180,
+
+height:60,
+
+fill:"#673ab7"
+
+});
+
 
 render();
 
 };
+
+
+// BUTTONS
 
 document
 .getElementById(
