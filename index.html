@@ -5,574 +5,130 @@
 
 <title>BioChamp</title>
 
-<style>
-
-body{
-margin:0;
-background:black;
-font-family:Arial;
-overflow:hidden;
-color:white;
-}
-
-#panel{
-position:absolute;
-top:20px;
-left:20px;
-z-index:10;
-background:#111;
-padding:20px;
-border-radius:10px;
-border:1px solid #333;
-}
-
-h2{
-margin-top:0;
-}
-
-input{
-display:block;
-margin-top:10px;
-padding:10px;
-width:220px;
-background:#222;
-border:1px solid #444;
-color:white;
-}
-
-button{
-margin-top:12px;
-padding:10px;
-width:100%;
-background:#00d4ff;
-border:none;
-font-weight:bold;
-cursor:pointer;
-}
-
-svg{
-width:100vw;
-height:100vh;
-cursor:grab;
-}
-
-.node{
-stroke:white;
-stroke-width:2;
-cursor:pointer;
-}
-
-.label{
-fill:white;
-font-size:18px;
-text-anchor:middle;
-pointer-events:none;
-}
-
-.arrow{
-stroke:white;
-stroke-width:4;
-fill:none;
-}
-
-.enzyme{
-fill:#00ff88;
-font-size:20px;
-text-anchor:middle;
-pointer-events:none;
-}
-
-</style>
+<link
+rel="stylesheet"
+href="css/style.css"
+>
 
 </head>
 
 <body>
 
+<!-- LEFT PANEL -->
+
 <div id="panel">
 
 <h2>BioChamp</h2>
 
-<input id="mol1" placeholder="First Metabolite">
+<input
+id="mol1"
+placeholder="First Metabolite"
+>
 
-<input id="enzyme" placeholder="Enzyme">
+<input
+id="enzyme"
+placeholder="Enzyme"
+>
 
-<input id="mol2" placeholder="Second Metabolite">
-<input id="coIn" placeholder="Cofactor Input">
+<input
+id="mol2"
+placeholder="Second Metabolite"
+>
 
-<input id="coOut" placeholder="Cofactor Output">
-<button onclick="createLinear()">
+<input
+id="coIn"
+placeholder="Cofactor Input"
+>
+
+<input
+id="coOut"
+placeholder="Cofactor Output"
+>
+
+<button id="linearBtn">
 Create Linear
 </button>
 
-<button onclick="createCircular()">
-Create Circular
-</button>
-
-<button onclick="saveData()">
+<button id="saveBtn">
 Save
 </button>
 
-<button onclick="loadData()">
+<button id="loadBtn">
 Load
+</button>
+
+<button id="adminBtn">
+Admin Login
 </button>
 
 </div>
 
+<!-- ADMIN PANEL -->
+
+<div id="adminBar">
+
+<h3>Object Editor</h3>
+
+<input
+id="editLabel"
+placeholder="Edit Label"
+>
+
+<input
+id="editColor"
+placeholder="Color"
+>
+
+<select id="editShape">
+
+<option value="rect">
+Rectangle
+</option>
+
+<option value="circle">
+Circle
+</option>
+
+</select>
+
+<button id="applyBtn">
+Apply Changes
+</button>
+
+</div>
+
+<!-- SVG -->
+
 <svg id="viewer">
+
+<defs>
+
+<marker
+id="arrowhead"
+markerWidth="10"
+markerHeight="7"
+refX="10"
+refY="3.5"
+orient="auto"
+>
+
+<polygon
+points="0 0, 10 3.5, 0 7"
+fill="white"
+/>
+
+</marker>
+
+</defs>
 
 <g id="canvas"></g>
 
 </svg>
 
-<script>
-
-let svg=document.getElementById("viewer");
-let canvas=document.getElementById("canvas");
-
-let scale=1;
-let panX=0;
-let panY=0;
-
-let isDraggingCanvas=false;
-
-let startX,startY;
-
-let pathways=[];
-
-let dragData=null;
-
-function updateTransform(){
-
-canvas.setAttribute(
-"transform",
-`translate(${panX},${panY}) scale(${scale})`
-);
-
-}
-
-svg.addEventListener("wheel",(e)=>{
-
-e.preventDefault();
-
-if(e.deltaY<0){
-scale*=1.1;
-}
-else{
-scale*=0.9;
-}
-
-updateTransform();
-
-});
-
-svg.addEventListener("mousedown",(e)=>{
-
-if(e.target.dataset.type){
-
-dragData={
-type:e.target.dataset.type,
-pathway:parseInt(e.target.dataset.pathway),
-node:parseInt(e.target.dataset.node)
-};
-
-return;
-
-}
-
-isDraggingCanvas=true;
-
-startX=e.clientX-panX;
-startY=e.clientY-panY;
-
-});
-
-window.addEventListener("mouseup",()=>{
-
-dragData=null;
-isDraggingCanvas=false;
-
-});
-
-window.addEventListener("mousemove",(e)=>{
-
-if(dragData){
-
-let mouseX=(e.clientX-panX)/scale;
-let mouseY=(e.clientY-panY)/scale;
-
-let p=pathways[dragData.pathway];
-
-if(dragData.type==="linear-left"){
-
-p.x1=mouseX;
-p.y1=mouseY;
-
-}
-
-if(dragData.type==="linear-right"){
-
-p.x2=mouseX;
-p.y2=mouseY;
-
-}
-
-if(dragData.type==="circle-node"){
-
-p.nodes[dragData.node].x=mouseX;
-p.nodes[dragData.node].y=mouseY;
-
-}
-
-render();
-
-return;
-
-}
-
-if(!isDraggingCanvas) return;
-
-panX=e.clientX-startX;
-panY=e.clientY-startY;
-
-updateTransform();
-
-});
-
-function createLinear(){
-
-let mol1=document.getElementById("mol1").value;
-let enzyme=document.getElementById("enzyme").value;
-let mol2=document.getElementById("mol2").value;
-let coIn=document.getElementById("coIn").value;
-let coOut=document.getElementById("coOut").value;
-pathways.push({
-type:"linear",
-mol1,
-enzyme,
-mol2,
-coIn,
-coOut,
-x1:200,
-y1:200+pathways.length*250,
-x2:700,
-y2:200+pathways.length*250
-});
-
-render();
-
-}
-
-function createCircular(){
-
-let mol1=document.getElementById("mol1").value;
-let enzyme=document.getElementById("enzyme").value;
-let mol2=document.getElementById("mol2").value;
-
-let circular=pathways.find(
-p=>p.type==="circular"
-);
-
-if(!circular){
-
-circular={
-type:"circular",
-reactions:[]
-};
-
-pathways.push(circular);
-
-}
-
-circular.reactions.push({
-
-substrate:mol1,
-enzyme:enzyme,
-product:mol2
-
-});
-
-render();
-
-} 
-
-function render(){
-
-canvas.innerHTML="";
-
-pathways.forEach((p,pIndex)=>{
-
-if(p.type==="linear"){
-
-canvas.innerHTML += `
-
-<line
-x1="${p.x1+90}"
-y1="${p.y1}"
-x2="${p.x2-90}"
-y2="${p.y2}"
-class="arrow"
-/>
-
-<polygon
-points="
-${p.x2-90},${p.y2}
-${p.x2-120},${p.y2-15}
-${p.x2-120},${p.y2+15}"
-fill="white"
-/>
-
-<!-- LEFT NODE -->
-
-<rect
-x="${p.x1-90}"
-y="${p.y1-45}"
-width="180"
-height="90"
-rx="15"
-fill="#00d4ff"
-stroke="white"
-stroke-width="2"
-class="node"
-data-type="linear-left"
-data-pathway="${pIndex}"
-/>
-
-<text
-x="${p.x1}"
-y="${p.y1+5}"
-class="label"
->
-${p.mol1}
-</text>
-
-<!-- RIGHT NODE -->
-
-<rect
-x="${p.x2-90}"
-y="${p.y2-45}"
-width="180"
-height="90"
-rx="15"
-fill="#ff9800"
-stroke="white"
-stroke-width="2"
-class="node"
-data-type="linear-right"
-data-pathway="${pIndex}"
-/>
-
-<text
-x="${p.x2}"
-y="${p.y2+5}"
-class="label"
->
-${p.mol2}
-</text>
-<!-- ATP NODE -->
-
-<rect
-x="${((p.x1+p.x2)/2)-70}"
-y="${p.y1-180}"
-width="140"
-height="60"
-rx="12"
-fill="#9c27b0"
-stroke="white"
-stroke-width="2"
-/>
-
-<text
-x="${(p.x1+p.x2)/2}"
-y="${p.y1-142}"
-class="label"
->
-${p.coIn || "ATP"}
-</text>
-
-<!-- ATP ARROW -->
-
-<line
-x1="${(p.x1+p.x2)/2}"
-y1="${p.y1-120}"
-x2="${(p.x1+p.x2)/2}"
-y2="${p.y1-20}"
-stroke="white"
-stroke-width="3"
-/>
-
-<!-- ADP NODE -->
-
-<rect
-x="${((p.x1+p.x2)/2)-70}"
-y="${p.y1+120}"
-width="140"
-height="60"
-rx="12"
-fill="#673ab7"
-stroke="white"
-stroke-width="2"
-/>
-
-<text
-x="${(p.x1+p.x2)/2}"
-y="${p.y1+158}"
-class="label"
->
-${p.coOut || "ADP"}
-</text>
-
-<!-- ADP ARROW -->
-
-<line
-x1="${(p.x1+p.x2)/2}"
-y1="${p.y1+20}"
-x2="${(p.x1+p.x2)/2}"
-y2="${p.y1+120}"
-stroke="white"
-stroke-width="3"
-/>
-<!-- ENZYME -->
-
-<text
-x="${(p.x1+p.x2)/2}"
-y="${p.y1-60}"
-class="enzyme"
->
-${p.enzyme}
-</text>
-
-`;
-
-}
-
-if(p.type==="circular"){
-
-let radius=250;
-
-let centerX=900;
-let centerY=500;
-
-let total=Math.max(p.reactions.length,6);
-
-for(let i=0;i<total;i++){
-
-let reaction=p.reactions[i];
-
-let angle1=(Math.PI*2/total)*i;
-let angle2=(Math.PI*2/total)*(i+1);
-
-let x1=centerX+Math.cos(angle1)*radius;
-let y1=centerY+Math.sin(angle1)*radius;
-
-let x2=centerX+Math.cos(angle2)*radius;
-let y2=centerY+Math.sin(angle2)*radius;
-
-canvas.innerHTML += `
-
-<!-- ARROW -->
-
-<line
-x1="${x1}"
-y1="${y1}"
-x2="${x2}"
-y2="${y2}"
-class="arrow"
-/>
-
-<!-- SUBSTRATE -->
-
-<rect
-x="${x1-60}"
-y="${y1-35}"
-width="120"
-height="70"
-rx="15"
-fill="#00d4ff"
-stroke="white"
-stroke-width="2"
-/>
-
-<text
-x="${x1}"
-y="${y1+5}"
-class="label"
->
-${reaction.substrate}
-</text>
-
-<!-- PRODUCT -->
-
-<rect
-x="${x2-60}"
-y="${y2-35}"
-width="120"
-height="70"
-rx="15"
-fill="#ff9800"
-stroke="white"
-stroke-width="2"
-/>
-
-<text
-x="${x2}"
-y="${y2+5}"
-class="label"
->
-${reaction.product}
-</text>
-
-<!-- ENZYME -->
-
-<text
-x="${(x1+x2)/2}"
-y="${(y1+y2)/2-20}"
-class="enzyme"
-style="font-size:12px"
->
-${reaction.enzyme}
-</text>
-
-`;
-
-}
-
-}
-});
-
-updateTransform();
-
-}
-
-function saveData(){
-
-localStorage.setItem(
-"biochampData",
-JSON.stringify(pathways)
-);
-
-alert("Saved");
-
-}
-
-function loadData(){
-
-let data=localStorage.getItem("biochampData");
-
-if(data){
-
-pathways=JSON.parse(data);
-
-render();
-
-alert("Loaded");
-
-}
-
-}
-
-updateTransform();
-
-</script>
+<script
+type="module"
+src="js/app.js"
+></script>
 
 </body>
 </html>
