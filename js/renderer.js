@@ -19,6 +19,10 @@ updateTransform();
 }
 
 
+// ======================
+// CONNECTIONS
+// ======================
+
 function renderConnections(){
 
 const metabolites=
@@ -60,109 +64,18 @@ class="arrow"
 }
 
 
+// ======================
+// OBJECTS
+// ======================
+
 function renderObjects(){
 
 state.objects.forEach(obj=>{
 
-// METABOLITE
 
-if(obj.type==="metabolite"){
-
-canvas.innerHTML += `
-
-<rect
-
-x="${obj.x-obj.width/2}"
-
-y="${obj.y-obj.height/2}"
-
-width="${obj.width}"
-
-height="${obj.height}"
-
-rx="20"
-
-fill="${obj.fill}"
-
-class="node"
-
-data-id="${obj.id}"
-
-onclick="selectObject('${obj.id}')"
-
-/>
-
-<text
-
-x="${obj.x}"
-
-y="${obj.y+10}"
-
-class="label"
-
->
-
-${obj.label}
-
-</text>
-
-`;
-
-}
-
-
-// COFACTOR
-
-if(obj.type==="cofactor"){
-
-canvas.innerHTML += `
-
-<rect
-
-x="${obj.x-obj.width/2}"
-
-y="${obj.y-obj.height/2}"
-
-width="${obj.width}"
-
-height="${obj.height}"
-
-rx="12"
-
-fill="${obj.fill}"
-
-stroke="white"
-
-stroke-width="2"
-
-class="node"
-
-data-id="${obj.id}"
-
-onclick="selectObject('${obj.id}')"
-
-/>
-
-<text
-
-x="${obj.x}"
-
-y="${obj.y+8}"
-
-class="label"
-
->
-
-${obj.label}
-
-</text>
-
-`;
-
-}
-
-
+// ===================
 // ENZYME
+// ===================
 
 if(obj.type==="enzyme"){
 
@@ -194,12 +107,86 @@ ${obj.label}
 
 `;
 
+return;
+
 }
+
+
+// ===================
+// SHAPE SETTINGS
+// ===================
+
+let rx=20;
+
+if(obj.shape==="circle"){
+
+rx=1000;
+
+}
+
+if(obj.shape==="pill"){
+
+rx=50;
+
+}
+
+
+// ===================
+// RECT/CIRCLE
+// ===================
+
+canvas.innerHTML += `
+
+<rect
+
+x="${obj.x-obj.width/2}"
+
+y="${obj.y-obj.height/2}"
+
+width="${obj.width}"
+
+height="${obj.height}"
+
+rx="${rx}"
+
+fill="${obj.fill}"
+
+stroke="white"
+
+stroke-width="2"
+
+class="node"
+
+data-id="${obj.id}"
+
+onclick="selectObject('${obj.id}')"
+
+/>
+
+<text
+
+x="${obj.x}"
+
+y="${obj.y+8}"
+
+class="label"
+
+>
+
+${obj.label}
+
+</text>
+
+`;
 
 });
 
 }
 
+
+// ======================
+// UPDATE VIEW
+// ======================
 
 export function updateTransform(){
 
