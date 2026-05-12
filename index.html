@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>BioChamp</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: white;
+      font-family: Arial;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    svg {
+      width: 100vw;
+      height: 90vh;
+    }
+
+    .metabolite {
+      fill: #00d4ff;
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    .label {
+      fill: white;
+      font-size: 18px;
+      text-anchor: middle;
+    }
+
+    .arrow {
+      stroke: white;
+      stroke-width: 4;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>BioChamp Pathway Viewer</h1>
+
+<svg viewBox="0 0 1200 400">
+
+  <!-- Arrow -->
+  <line
+    x1="250"
+    y1="200"
+    x2="500"
+    y2="200"
+    class="arrow"
+  />
+
+  <!-- Arrowhead -->
+  <polygon
+    points="500,200 470,185 470,215"
+    fill="white"
+  />
+
+  <!-- Molecule 1 -->
+  <circle
+    cx="180"
+    cy="200"
+    r="60"
+    class="metabolite"
+  />
+
+  <text
+    x="180"
+    y="205"
+    class="label"
+  >
+    Glucose
+  </text>
+
+  <!-- Molecule 2 -->
+  <circle
+    cx="580"
+    cy="200"
+    r="60"
+    fill="#ff9800"
+    stroke="white"
+    stroke-width="2"
+  />
+
+  <text
+    x="580"
+    y="205"
+    class="label"
+  >
+    G6P
+  </text>
+
+  <!-- Enzyme -->
+  <text
+    x="375"
+    y="170"
+    fill="#00ff88"
+    font-size="22"
+    text-anchor="middle"
+  >
+    Hexokinase
+  </text>
+
+</svg>
+
+</body>
+</html>
