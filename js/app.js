@@ -1,70 +1,44 @@
-const canvas =
-document.getElementById("canvas");
+const canvas = document.getElementById("canvas");
+const svg = document.getElementById("viewer");
 
-const svg =
-document.getElementById("viewer");
+let objects = [];
+let selectedObject = null;
+let adminMode = false;
 
+let scale = 1;
+let panX = 0;
+let panY = 0;
 
-// =====================
-// STATE
-// =====================
+let draggingCanvas = false;
+let dragObject = null;
 
-let adminMode=false;
-
-let selectedObject=null;
-
-let objects=[];
-
-let scale=1;
-
-let panX=0;
-
-let panY=0;
-
-let draggingCanvas=false;
-
-let dragObject=null;
-
-let startX=0;
-
-let startY=0;
+let startX = 0;
+let startY = 0;
 
 
-// =====================
+// ======================
 // CREATE PATHWAY
-// =====================
+// ======================
 
-document
-.getElementById("linearBtn")
-.onclick=function(){
+document.getElementById("linearBtn").onclick = function(){
 
-const mol1=
-document
-.getElementById("mol1")
-.value;
+const mol1 =
+document.getElementById("mol1").value;
 
-const enzyme=
-document
-.getElementById("enzyme")
-.value;
+const enzyme =
+document.getElementById("enzyme").value;
 
-const mol2=
-document
-.getElementById("mol2")
-.value;
+const mol2 =
+document.getElementById("mol2").value;
 
-const coIn=
-document
-.getElementById("coIn")
-.value;
+const coIn =
+document.getElementById("coIn").value;
 
-const coOut=
-document
-.getElementById("coOut")
-.value;
+const coOut =
+document.getElementById("coOut").value;
 
 
-// LEFT NODE
+// LEFT
 
 objects.push({
 
@@ -76,7 +50,7 @@ label:mol1,
 
 x:500,
 
-y:300+objects.length*40,
+y:300 + objects.length*40,
 
 width:220,
 
@@ -89,7 +63,7 @@ shape:"rect"
 });
 
 
-// RIGHT NODE
+// RIGHT
 
 objects.push({
 
@@ -101,7 +75,7 @@ label:mol2,
 
 x:1200,
 
-y:300+objects.length*40,
+y:300 + objects.length*40,
 
 width:220,
 
@@ -126,7 +100,7 @@ label:enzyme,
 
 x:850,
 
-y:220+objects.length*40,
+y:220 + objects.length*40,
 
 fill:"#00ff88",
 
@@ -147,7 +121,7 @@ label:coIn,
 
 x:850,
 
-y:120+objects.length*40,
+y:120 + objects.length*40,
 
 width:180,
 
@@ -172,7 +146,7 @@ label:coOut,
 
 x:850,
 
-y:450+objects.length*40,
+y:450 + objects.length*40,
 
 width:180,
 
@@ -189,46 +163,38 @@ render();
 };
 
 
-// =====================
+// ======================
 // RENDER
-// =====================
+// ======================
 
 function render(){
 
-canvas.innerHTML="";
+canvas.innerHTML = "";
 
 
 // CONNECTIONS
 
-const metabolites=
+const metabolites =
 objects.filter(
-o=>o.type==="metabolite"
+o => o.type === "metabolite"
 );
 
-for(
-let i=0;
-i<metabolites.length-1;
-i+=2
-){
+for(let i=0;i<metabolites.length-1;i+=2){
 
-const left=
-metabolites[i];
+const left = metabolites[i];
+const right = metabolites[i+1];
 
-const right=
-metabolites[i+1];
-
-if(!left || !right)
-continue;
+if(!left || !right) continue;
 
 canvas.innerHTML += `
 
 <line
 
-x1="${left.x+left.width/2}"
+x1="${left.x + left.width/2}"
 
 y1="${left.y}"
 
-x2="${right.x-right.width/2}"
+x2="${right.x - right.width/2}"
 
 y2="${right.y}"
 
@@ -287,30 +253,26 @@ return;
 
 // SHAPE SYSTEM
 
-let rx=20;
+let rx = 20;
 
 if(obj.shape==="circle"){
-
-rx=1000;
-
+rx = 1000;
 }
 
 if(obj.shape==="pill"){
-
-rx=60;
-
+rx = 60;
 }
 
 
-// OBJECT
+// DRAW OBJECT
 
 canvas.innerHTML += `
 
 <rect
 
-x="${obj.x-obj.width/2}"
+x="${obj.x - obj.width/2}"
 
-y="${obj.y-obj.height/2}"
+y="${obj.y - obj.height/2}"
 
 width="${obj.width}"
 
@@ -334,7 +296,7 @@ data-id="${obj.id}"
 
 x="${obj.x}"
 
-y="${obj.y+8}"
+y="${obj.y + 8}"
 
 fill="white"
 
@@ -358,145 +320,112 @@ updateTransform();
 }
 
 
-// =====================
+// ======================
 // ADMIN LOGIN
-// =====================
+// ======================
 
-document
-.getElementById("adminBtn")
-.onclick=function(){
+document.getElementById("adminBtn").onclick = function(){
 
-const pass=
-prompt(
-"Enter Password"
-);
+const pass =
+prompt("Enter Password");
 
 if(pass==="biochamp"){
 
-adminMode=true;
+adminMode = true;
 
-document
-.getElementById(
+document.getElementById(
 "adminBar"
-)
-.style.display="block";
+).style.display = "block";
 
-alert(
-"Admin Mode Enabled"
-);
+alert("Admin Enabled");
 
 }
 
 };
 
 
-// =====================
+// ======================
 // SELECT OBJECT
-// =====================
+// ======================
 
 svg.addEventListener(
 "click",
-(e)=>{
+function(e){
 
-if(!adminMode)
-return;
+if(!adminMode) return;
 
-const id=
+const id =
 e.target.dataset.id;
 
 if(!id) return;
 
-selectedObject=
+selectedObject =
 objects.find(
-o=>o.id===id
+o => o.id === id
 );
 
-if(!selectedObject)
-return;
+if(!selectedObject) return;
 
-document
-.getElementById(
+document.getElementById(
 "editLabel"
-)
-.value=
+).value =
 selectedObject.label;
 
-document
-.getElementById(
+document.getElementById(
 "editColor"
-)
-.value=
+).value =
 selectedObject.fill;
 
-document
-.getElementById(
+document.getElementById(
 "editShape"
-)
-.value=
+).value =
 selectedObject.shape;
 
 }
 );
 
 
-// =====================
+// ======================
 // APPLY CHANGES
-// =====================
+// ======================
 
-document
-.getElementById(
+document.getElementById(
 "applyBtn"
-)
-.onclick=function(){
+).onclick = function(){
 
-if(!selectedObject)
-return;
+if(!selectedObject) return;
 
-selectedObject.label=
-
-document
-.getElementById(
+selectedObject.label =
+document.getElementById(
 "editLabel"
-)
-.value;
+).value;
 
-selectedObject.fill=
-
-document
-.getElementById(
+selectedObject.fill =
+document.getElementById(
 "editColor"
-)
-.value;
+).value;
 
-selectedObject.shape=
-
-document
-.getElementById(
+selectedObject.shape =
+document.getElementById(
 "editShape"
-)
-.value;
+).value;
 
 render();
 
 };
 
 
-// =====================
+// ======================
 // SAVE
-// =====================
+// ======================
 
-document
-.getElementById(
+document.getElementById(
 "saveBtn"
-)
-.onclick=function(){
+).onclick = function(){
 
 localStorage.setItem(
-
 "biochamp",
-
 JSON.stringify(objects)
-
 );
 
 alert("Saved");
@@ -504,25 +433,22 @@ alert("Saved");
 };
 
 
-// =====================
+// ======================
 // LOAD
-// =====================
+// ======================
 
-document
-.getElementById(
+document.getElementById(
 "loadBtn"
-)
-.onclick=function(){
+).onclick = function(){
 
-const data=
+const data =
 localStorage.getItem(
 "biochamp"
 );
 
 if(data){
 
-objects=
-JSON.parse(data);
+objects = JSON.parse(data);
 
 render();
 
@@ -533,25 +459,20 @@ alert("Loaded");
 };
 
 
-// =====================
+// ======================
 // ZOOM
-// =====================
+// ======================
 
 svg.addEventListener(
 "wheel",
-(e)=>{
+function(e){
 
 e.preventDefault();
 
 if(e.deltaY<0){
-
 scale*=1.1;
-
-}
-else{
-
+}else{
 scale*=0.9;
-
 }
 
 updateTransform();
@@ -560,80 +481,74 @@ updateTransform();
 );
 
 
-// =====================
+// ======================
 // DRAG START
-// =====================
+// ======================
 
 svg.addEventListener(
 "mousedown",
-(e)=>{
+function(e){
 
-const id=
+const id =
 e.target.dataset.id;
 
 if(id){
 
-dragObject=id;
-
+dragObject = id;
 return;
 
 }
 
-draggingCanvas=true;
+draggingCanvas = true;
 
-startX=
-e.clientX-panX;
+startX =
+e.clientX - panX;
 
-startY=
-e.clientY-panY;
+startY =
+e.clientY - panY;
 
 }
 );
 
 
-// =====================
+// ======================
 // DRAG END
-// =====================
+// ======================
 
 window.addEventListener(
 "mouseup",
-()=>{
+function(){
 
-dragObject=null;
+dragObject = null;
 
-draggingCanvas=false;
+draggingCanvas = false;
 
 }
 );
 
 
-// =====================
+// ======================
 // DRAG MOVE
-// =====================
+// ======================
 
 window.addEventListener(
 "mousemove",
-(e)=>{
-
-
-// OBJECT DRAG
+function(e){
 
 if(dragObject){
 
-const obj=
+const obj =
 objects.find(
-o=>o.id===dragObject
+o => o.id === dragObject
 );
 
 if(obj){
 
-obj.x=
-(e.clientX-panX)
-/scale;
+obj.x =
+(e.clientX - panX)/scale;
 
-obj.y=
-(e.clientY-panY)
-/scale;
+obj.y =
+(e.clientY - panY)/scale;
 
 render();
 
@@ -644,16 +559,13 @@ return;
 }
 
 
-// CANVAS PAN
+if(!draggingCanvas) return;
 
-if(!draggingCanvas)
-return;
+panX =
+e.clientX - startX;
 
-panX=
-e.clientX-startX;
-
-panY=
-e.clientY-startY;
+panY =
+e.clientY - startY;
 
 updateTransform();
 
@@ -661,9 +573,9 @@ updateTransform();
 );
 
 
-// =====================
+// ======================
 // UPDATE VIEW
-// =====================
+// ======================
 
 function updateTransform(){
 
