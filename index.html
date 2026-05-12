@@ -374,7 +374,69 @@ class="label"
 >
 ${p.mol2}
 </text>
+<!-- ATP NODE -->
 
+<rect
+x="${((p.x1+p.x2)/2)-70}"
+y="${p.y1-180}"
+width="140"
+height="60"
+rx="12"
+fill="#9c27b0"
+stroke="white"
+stroke-width="2"
+/>
+
+<text
+x="${(p.x1+p.x2)/2}"
+y="${p.y1-142}"
+class="label"
+>
+ATP
+</text>
+
+<!-- ATP ARROW -->
+
+<line
+x1="${(p.x1+p.x2)/2}"
+y1="${p.y1-120}"
+x2="${(p.x1+p.x2)/2}"
+y2="${p.y1-20}"
+stroke="white"
+stroke-width="3"
+/>
+
+<!-- ADP NODE -->
+
+<rect
+x="${((p.x1+p.x2)/2)-70}"
+y="${p.y1+120}"
+width="140"
+height="60"
+rx="12"
+fill="#673ab7"
+stroke="white"
+stroke-width="2"
+/>
+
+<text
+x="${(p.x1+p.x2)/2}"
+y="${p.y1+158}"
+class="label"
+>
+ADP
+</text>
+
+<!-- ADP ARROW -->
+
+<line
+x1="${(p.x1+p.x2)/2}"
+y1="${p.y1+20}"
+x2="${(p.x1+p.x2)/2}"
+y2="${p.y1+120}"
+stroke="white"
+stroke-width="3"
+/>
 <!-- ENZYME -->
 
 <text
