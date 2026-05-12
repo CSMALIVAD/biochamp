@@ -211,6 +211,7 @@ let x2=x1+400;
 let y2=y1;
 
 pathways.push({
+id:Date.now()+Math.random(),
 type:"linear",
 mol1,
 enzyme,
@@ -221,7 +222,6 @@ y1,
 x2,
 y2
 });
-
 render();
 
 }
@@ -338,7 +338,8 @@ rx="15"
 fill="#00d4ff"
 stroke="white"
 stroke-width="2"
-class="node"
+class="node draggable"
+data-id="${p.id}"
 />
 
 <text
@@ -431,31 +432,61 @@ function dragNode(evt,element,index,xKey,yKey){
 
 evt.stopPropagation();
 
-dragInfo={
-index,
-xKey,
-yKey
+let dragNodeData=null;
+
+svg.addEventListener("mousedown",(e)=>{
+
+if(e.target.classList.contains("draggable")){
+
+dragNodeData={
+id:e.target.dataset.id
 };
+
+return;
 
 }
 
+isDraggingCanvas=true;
+
+startX=e.clientX-panX;
+startY=e.clientY-panY;
+
+});
+
 window.addEventListener("mousemove",(e)=>{
 
-if(!dragInfo) return;
+if(dragNodeData){
 
-pathways[dragInfo.index][dragInfo.xKey]=
-(e.clientX-panX)/scale;
+let node=pathways.find(
+p=>p.id==dragNodeData.id
+);
 
-pathways[dragInfo.index][dragInfo.yKey]=
-(e.clientY-panY)/scale;
+if(node){
+
+node.x1=(e.clientX-panX)/scale;
+node.y1=(e.clientY-panY)/scale;
 
 render();
+
+}
+
+return;
+
+}
+
+if(!isDraggingCanvas) return;
+
+panX=e.clientX-startX;
+panY=e.clientY-startY;
+
+updateTransform();
 
 });
 
 window.addEventListener("mouseup",()=>{
 
-dragInfo=null;
+dragNodeData=null;
+isDraggingCanvas=false;
 
 });
 
