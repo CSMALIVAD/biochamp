@@ -280,7 +280,7 @@ mol2,
 "Intermediate 3",
 "Intermediate 4",
 "Intermediate 5",
-enzyme
+"Intermediate 6"
 ];
 
 let nodes=[];
@@ -472,7 +472,13 @@ x2="${n2.x}"
 y2="${n2.y}"
 class="arrow"
 />
-
+<text
+x="${(n1.x+n2.x)/2}"
+y="${(n1.y+n2.y)/2}"
+class="enzyme"
+>
+${document.getElementById("enzyme").value}
+</text>
 <rect
 x="${n1.x-60}"
 y="${n1.y-35}"
