@@ -130,3 +130,66 @@ updateTransform();
 
 }
 );
+const adminBar=
+document.getElementById(
+"adminBar"
+);
+
+let draggingPanel=false;
+
+let panelOffsetX=0;
+
+let panelOffsetY=0;
+
+
+// PANEL DRAG START
+
+adminBar.addEventListener(
+"mousedown",
+(e)=>{
+
+draggingPanel=true;
+
+panelOffsetX=
+e.offsetX;
+
+panelOffsetY=
+e.offsetY;
+
+}
+);
+
+
+// PANEL DRAG END
+
+window.addEventListener(
+"mouseup",
+()=>{
+
+draggingPanel=false;
+
+}
+);
+
+
+// PANEL DRAG MOVE
+
+window.addEventListener(
+"mousemove",
+(e)=>{
+
+if(!draggingPanel)
+return;
+
+adminBar.style.left=
+(e.clientX-panelOffsetX)
++"px";
+
+adminBar.style.top=
+(e.clientY-panelOffsetY)
++"px";
+
+adminBar.style.right="auto";
+
+}
+);
