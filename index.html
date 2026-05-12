@@ -329,12 +329,16 @@ fill="white"
 }
 />
 
-<circle
-cx="${p.x1}"
-cy="${p.y1}"
-r="70"
+<rect
+x="${p.x1-90}"
+y="${p.y1-45}"
+width="180"
+height="90"
+rx="15"
+fill="#00d4ff"
+stroke="white"
+stroke-width="2"
 class="node"
-onmousedown="dragNode(evt,this,${index},'x1','y1')"
 />
 
 <text
@@ -345,15 +349,16 @@ class="label"
 ${p.mol1}
 </text>
 
-<circle
-cx="${p.x2}"
-cy="${p.y2}"
-r="70"
+<rect
+x="${p.x2-90}"
+y="${p.y2-45}"
+width="180"
+height="90"
+rx="15"
 fill="#ff9800"
 stroke="white"
 stroke-width="2"
 class="node"
-onmousedown="dragNode(evt,this,${index},'x2','y2')"
 />
 
 <text
