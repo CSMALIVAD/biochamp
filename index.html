@@ -191,15 +191,35 @@ let mol1=document.getElementById("mol1").value;
 let enzyme=document.getElementById("enzyme").value;
 let mol2=document.getElementById("mol2").value;
 
+let reversible=confirm(
+"Reversible reaction?"
+);
+
+let previous=pathways[pathways.length-1];
+
+let x1=200;
+let y1=200;
+
+if(previous && previous.type==="linear"){
+
+x1=previous.x2+300;
+y1=previous.y2;
+
+}
+
+let x2=x1+400;
+let y2=y1;
+
 pathways.push({
 type:"linear",
 mol1,
 enzyme,
 mol2,
-x1:200,
-y1:200+pathways.length*250,
-x2:700,
-y2:200+pathways.length*250
+reversible,
+x1,
+y1,
+x2,
+y2
 });
 
 render();
@@ -245,6 +265,49 @@ if(p.type==="linear"){
 
 canvas.innerHTML+=`
 
+${
+p.reversible ?
+
+`
+
+<line
+x1="${p.x1+80}"
+y1="${p.y1-12}"
+x2="${p.x2-80}"
+y2="${p.y2-12}"
+class="arrow"
+/>
+
+<polygon
+points="
+${p.x2-80},${p.y2-12}
+${p.x2-110},${p.y2-27}
+${p.x2-110},${p.y2+3}"
+fill="white"
+/>
+
+<line
+x1="${p.x2-80}"
+y1="${p.y2+12}"
+x2="${p.x1+80}"
+y2="${p.y1+12}"
+class="arrow"
+/>
+
+<polygon
+points="
+${p.x1+80},${p.y1+12}
+${p.x1+110},${p.y1-3}
+${p.x1+110},${p.y1+27}"
+fill="white"
+/>
+
+`
+
+:
+
+`
+
 <line
 x1="${p.x1+80}"
 y1="${p.y1}"
@@ -259,6 +322,11 @@ ${p.x2-80},${p.y2}
 ${p.x2-110},${p.y2-15}
 ${p.x2-110},${p.y2+15}"
 fill="white"
+/>
+
+`
+
+}
 />
 
 <circle
