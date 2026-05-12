@@ -36,101 +36,60 @@ alert("Wrong Password");
 
 }
 
-window.selectObject=function(
-side,
-index
-){
+
+// SELECT OBJECT
+
+window.selectObject=function(id){
 
 if(!state.adminMode)
 return;
 
-state.selectedObject={
-side,
-index
-};
+const obj=
+state.objects.find(
+o=>o.id==id
+);
 
-const p=
-state.pathways[index];
+if(!obj) return;
 
-if(side==="left"){
-
-document
-.getElementById(
-"editLabel"
-)
-.value=p.mol1;
-
-document
-.getElementById(
-"editColor"
-)
-.value=p.leftColor;
-
-}
-
-if(side==="right"){
+state.selectedObject=obj;
 
 document
 .getElementById(
 "editLabel"
 )
-.value=p.mol2;
+.value=obj.label;
 
 document
 .getElementById(
 "editColor"
 )
-.value=p.rightColor;
-
-}
+.value=obj.fill;
 
 };
+
+
+// APPLY CHANGES
 
 export function applyChanges(){
 
 if(!state.selectedObject)
 return;
 
-const p=
-state.pathways[
-state.selectedObject.index
-];
+state.selectedObject.label=
 
-const label=
 document
 .getElementById(
 "editLabel"
 )
 .value;
 
-const color=
+state.selectedObject.fill=
+
 document
 .getElementById(
 "editColor"
 )
 .value;
-
-if(
-state.selectedObject.side
-==="left"
-){
-
-p.mol1=label;
-
-p.leftColor=color;
-
-}
-
-if(
-state.selectedObject.side
-==="right"
-){
-
-p.mol2=label;
-
-p.rightColor=color;
-
-}
 
 render();
 
