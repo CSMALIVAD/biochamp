@@ -12,6 +12,9 @@ document.getElementById(
 "viewer"
 );
 
+
+// ZOOM
+
 svg.addEventListener(
 "wheel",
 (e)=>{
@@ -34,30 +37,25 @@ updateTransform();
 }
 );
 
+
+// MOUSE DOWN
+
 svg.addEventListener(
 "mousedown",
 (e)=>{
 
-if(
-e.target.classList.contains(
-"node"
-)
-){
+const id=
+e.target.dataset.id;
 
-state.dragNode={
-index:parseInt(
-e.target.dataset.index
-),
+if(id){
 
-side:
-e.target.dataset.side
-};
+state.dragObject=id;
 
 return;
 
 }
 
-state.isDragging=true;
+state.isDraggingCanvas=true;
 
 state.startX=
 e.clientX-state.panX;
@@ -68,63 +66,58 @@ e.clientY-state.panY;
 }
 );
 
+
+// MOUSE UP
+
 window.addEventListener(
 "mouseup",
 ()=>{
 
-state.isDragging=false;
+state.dragObject=null;
 
-state.dragNode=null;
+state.isDraggingCanvas=false;
 
 }
 );
+
+
+// MOUSE MOVE
 
 window.addEventListener(
 "mousemove",
 (e)=>{
 
-if(state.dragNode){
+// DRAG OBJECT
 
-const p=
-state.pathways[
-state.dragNode.index
-];
+if(state.dragObject){
 
-const x=
+const obj=
+state.objects.find(
+o=>o.id===state.dragObject
+);
+
+if(obj){
+
+obj.x=
 (e.clientX-state.panX)
 /state.scale;
 
-const y=
+obj.y=
 (e.clientY-state.panY)
 /state.scale;
 
-if(
-state.dragNode.side
-==="left"
-){
-
-p.x1=x;
-p.y1=y;
-
-}
-
-if(
-state.dragNode.side
-==="right"
-){
-
-p.x2=x;
-p.y2=y;
-
-}
-
 render();
+
+}
 
 return;
 
 }
 
-if(!state.isDragging)
+
+// PAN
+
+if(!state.isDraggingCanvas)
 return;
 
 state.panX=
