@@ -473,10 +473,13 @@ y2="${n2.y}"
 class="arrow"
 />
 <text
-x="${(n1.x+n2.x)/2}"
-y="${(n1.y+n2.y)/2}"
+x="${((n1.x+n2.x)/2)+20}"
+y="${((n1.y+n2.y)/2)-10}"
 class="enzyme"
+style="font-size:12px"
 >
+E${i+1}
+</text>
 ${document.getElementById("enzyme").value}
 </text>
 <rect
@@ -499,7 +502,7 @@ x="${n1.x}"
 y="${n1.y+5}"
 class="label"
 >
-${n1.name}
+M${i+1}
 </text>
 
 `;
