@@ -10,10 +10,10 @@ export function saveData(){
 
 localStorage.setItem(
 
-"biochampData",
+"biochampObjects",
 
 JSON.stringify(
-state.pathways
+state.objects
 )
 
 );
@@ -26,12 +26,12 @@ export function loadData(){
 
 const data=
 localStorage.getItem(
-"biochampData"
+"biochampObjects"
 );
 
 if(data){
 
-state.pathways=
+state.objects=
 JSON.parse(data);
 
 render();
