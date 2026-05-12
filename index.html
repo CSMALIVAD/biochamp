@@ -2,113 +2,277 @@
 <html>
 
 <head>
-  <title>BioChamp</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: white;
-      font-family: Arial;
-      overflow: hidden;
-    }
+<title>BioChamp</title>
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
+<style>
 
-    svg {
-      width: 100vw;
-      height: 90vh;
-    }
+body{
+margin:0;
+background:#000;
+font-family:Arial;
+overflow:hidden;
+color:white;
+}
 
-    .metabolite {
-      fill: #00d4ff;
-      stroke: white;
-      stroke-width: 2;
-    }
+h1{
+position:absolute;
+top:10px;
+left:20px;
+z-index:10;
+color:#00d4ff;
+}
 
-    .label {
-      fill: white;
-      font-size: 18px;
-      text-anchor: middle;
-    }
+#controls{
+position:absolute;
+top:70px;
+left:20px;
+z-index:10;
+background:#111;
+padding:15px;
+border-radius:10px;
+border:1px solid #333;
+}
 
-    .arrow {
-      stroke: white;
-      stroke-width: 4;
-    }
-  </style>
+input{
+display:block;
+margin-top:10px;
+padding:10px;
+background:#222;
+border:1px solid #444;
+color:white;
+width:220px;
+}
+
+button{
+margin-top:12px;
+padding:10px;
+width:100%;
+background:#00d4ff;
+border:none;
+font-weight:bold;
+cursor:pointer;
+}
+
+svg{
+width:100vw;
+height:100vh;
+background:black;
+cursor:grab;
+}
+
+.node{
+fill:#00d4ff;
+stroke:white;
+stroke-width:2;
+}
+
+.label{
+fill:white;
+font-size:18px;
+text-anchor:middle;
+pointer-events:none;
+}
+
+.arrow{
+stroke:white;
+stroke-width:4;
+}
+
+.enzyme{
+fill:#00ff88;
+font-size:22px;
+text-anchor:middle;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <h1>BioChamp Pathway Viewer</h1>
 
-<svg viewBox="0 0 1200 400">
+<div id="controls">
 
-  <!-- Arrow -->
-  <line
-    x1="250"
-    y1="200"
-    x2="500"
-    y2="200"
-    class="arrow"
-  />
+<input id="mol1" placeholder="First Metabolite">
 
-  <!-- Arrowhead -->
-  <polygon
-    points="500,200 470,185 470,215"
-    fill="white"
-  />
+<input id="enzyme" placeholder="Enzyme">
 
-  <!-- Molecule 1 -->
-  <circle
-    cx="180"
-    cy="200"
-    r="60"
-    class="metabolite"
-  />
+<input id="mol2" placeholder="Second Metabolite">
 
-  <text
-    x="180"
-    y="205"
-    class="label"
-  >
-    Glucose
-  </text>
+<button onclick="createPathway()">
+Create Pathway
+</button>
 
-  <!-- Molecule 2 -->
-  <circle
-    cx="580"
-    cy="200"
-    r="60"
-    fill="#ff9800"
-    stroke="white"
-    stroke-width="2"
-  />
+</div>
 
-  <text
-    x="580"
-    y="205"
-    class="label"
-  >
-    G6P
-  </text>
+<svg id="viewer">
 
-  <!-- Enzyme -->
-  <text
-    x="375"
-    y="170"
-    fill="#00ff88"
-    font-size="22"
-    text-anchor="middle"
-  >
-    Hexokinase
-  </text>
+<g id="canvas"></g>
 
 </svg>
+
+<script>
+
+let svg=document.getElementById("viewer");
+let canvas=document.getElementById("canvas");
+
+let scale=1;
+let panX=0;
+let panY=0;
+
+let isDragging=false;
+let startX,startY;
+
+function updateTransform(){
+
+canvas.setAttribute(
+"transform",
+`translate(${panX},${panY}) scale(${scale})`
+);
+
+}
+
+svg.addEventListener("wheel",(e)=>{
+
+e.preventDefault();
+
+if(e.deltaY<0){
+scale*=1.1;
+}
+else{
+scale*=0.9;
+}
+
+updateTransform();
+
+});
+
+svg.addEventListener("mousedown",(e)=>{
+
+isDragging=true;
+
+startX=e.clientX-panX;
+startY=e.clientY-panY;
+
+svg.style.cursor="grabbing";
+
+});
+
+svg.addEventListener("mouseup",()=>{
+
+isDragging=false;
+svg.style.cursor="grab";
+
+});
+
+svg.addEventListener("mousemove",(e)=>{
+
+if(!isDragging) return;
+
+panX=e.clientX-startX;
+panY=e.clientY-startY;
+
+updateTransform();
+
+});
+
+let pathwayDatabase=[];
+
+function createPathway(){
+
+let mol1=document.getElementById("mol1").value;
+let enzyme=document.getElementById("enzyme").value;
+let mol2=document.getElementById("mol2").value;
+
+let pathway={
+molecule1:mol1,
+enzyme:enzyme,
+molecule2:mol2
+};
+
+pathwayDatabase.push(pathway);
+
+renderPathways();
+
+}
+
+function renderPathways(){
+
+canvas.innerHTML="";
+
+pathwayDatabase.forEach((p,index)=>{
+
+let offsetY=index*250;
+
+canvas.innerHTML += `
+
+<line
+x1="350"
+y1="${350+offsetY}"
+x2="800"
+y2="${350+offsetY}"
+class="arrow"
+/>
+
+<polygon
+points="
+800,${350+offsetY}
+770,${335+offsetY}
+770,${365+offsetY}"
+fill="white"
+/>
+
+<circle
+cx="250"
+cy="${350+offsetY}"
+r="70"
+class="node"
+/>
+
+<text
+x="250"
+y="${355+offsetY}"
+class="label"
+>
+${p.molecule1}
+</text>
+
+<circle
+cx="920"
+cy="${350+offsetY}"
+r="70"
+fill="#ff9800"
+stroke="white"
+stroke-width="2"
+/>
+
+<text
+x="920"
+y="${355+offsetY}"
+class="label"
+>
+${p.molecule2}
+</text>
+
+<text
+x="575"
+y="${300+offsetY}"
+class="enzyme"
+>
+${p.enzyme}
+</text>
+
+`;
+
+});
+
+}
+
+updateTransform();
+
+</script>
 
 </body>
 </html>
