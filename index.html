@@ -97,7 +97,9 @@ pointer-events:none;
 <input id="enzyme" placeholder="Enzyme">
 
 <input id="mol2" placeholder="Second Metabolite">
+<input id="coIn" placeholder="Cofactor Input">
 
+<input id="coOut" placeholder="Cofactor Output">
 <button onclick="createLinear()">
 Create Linear
 </button>
@@ -241,12 +243,15 @@ function createLinear(){
 let mol1=document.getElementById("mol1").value;
 let enzyme=document.getElementById("enzyme").value;
 let mol2=document.getElementById("mol2").value;
-
+let coIn=document.getElementById("coIn").value;
+let coOut=document.getElementById("coOut").value;
 pathways.push({
 type:"linear",
 mol1,
 enzyme,
 mol2,
+coIn,
+coOut,
 x1:200,
 y1:200+pathways.length*250,
 x2:700,
@@ -392,7 +397,7 @@ x="${(p.x1+p.x2)/2}"
 y="${p.y1-142}"
 class="label"
 >
-ATP
+${p.coIn || "ATP"}
 </text>
 
 <!-- ATP ARROW -->
@@ -424,7 +429,7 @@ x="${(p.x1+p.x2)/2}"
 y="${p.y1+158}"
 class="label"
 >
-ADP
+${p.coOut || "ADP"}
 </text>
 
 <!-- ADP ARROW -->
