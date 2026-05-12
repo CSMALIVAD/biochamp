@@ -84,7 +84,9 @@ width:220,
 height:100,
 
 fill:"#00d4ff"
-
+  
+shape:"rect",
+  
 });
 
 
@@ -110,7 +112,9 @@ width:220,
 height:100,
 
 fill:"#ff9800"
-
+  
+shape:"rect",
+  
 });
 
 
@@ -132,6 +136,8 @@ state.objects.length
 *40,
 
 fill:"#00ff88"
+
+shape:"rect",
 
 });
 
@@ -159,6 +165,8 @@ height:60,
 
 fill:"#9c27b0"
 
+shape:"rect",
+  
 });
 
 
@@ -184,7 +192,9 @@ width:180,
 height:60,
 
 fill:"#673ab7"
-
+  
+shape:"rect",
+  
 });
 
 
