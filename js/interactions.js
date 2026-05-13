@@ -1,11 +1,11 @@
 // =====================================================
 // interactions.js
-// BioChamp Mobile + Desktop Interaction Engine
+// BioChamp Touch + Desktop Engine
 // =====================================================
 
 
 // =========================
-// GLOBAL INTERACTION STATE
+// GLOBALS
 // =========================
 
 window.dragObject = null;
@@ -23,6 +23,8 @@ window.scale = 1;
 window.panX = 0;
 
 window.panY = 0;
+
+window.isTouchDragging = false;
 
 
 // =========================
@@ -48,10 +50,10 @@ scale(${window.scale})
 
 
 // =========================
-// GET POINTER POSITION
+// GET POSITION
 // =========================
 
-window.getPointerPosition = function(e){
+window.getEventPosition = function(e){
 
 if(e.touches && e.touches.length > 0){
 
@@ -77,13 +79,13 @@ y:e.clientY
 
 
 // =========================
-// START INTERACTION
+// START DRAG
 // =========================
 
-window.startInteraction = function(e){
+window.beginInteraction = function(e){
 
 const pos =
-window.getPointerPosition(e);
+window.getEventPosition(e);
 
 
 // RESIZE HANDLE
@@ -96,30 +98,32 @@ if(resizeId){
 window.resizeObject =
 resizeId;
 
+window.isTouchDragging = true;
+
 return;
 
 }
 
 
-// DRAG OBJECT
+// OBJECT DRAG
 
 const id =
 e.target.dataset.id;
 
 if(id){
 
-window.dragObject =
-id;
+window.dragObject = id;
+
+window.isTouchDragging = true;
 
 return;
 
 }
 
 
-// PAN CANVAS
+// PAN
 
-window.draggingCanvas =
-true;
+window.draggingCanvas = true;
 
 window.startX =
 pos.x - window.panX;
@@ -127,22 +131,25 @@ pos.x - window.panX;
 window.startY =
 pos.y - window.panY;
 
+window.isTouchDragging = true;
+
 };
 
 
 // =========================
-// MOVE INTERACTION
+// MOVE
 // =========================
 
 window.moveInteraction = function(e){
 
+if(!window.isTouchDragging)
+return;
+
 const pos =
-window.getPointerPosition(e);
+window.getEventPosition(e);
 
 
-// =========================
 // RESIZE
-// =========================
 
 if(window.resizeObject){
 
@@ -194,9 +201,7 @@ return;
 }
 
 
-// =========================
-// DRAG NODE
-// =========================
+// OBJECT DRAG
 
 if(window.dragObject){
 
@@ -208,6 +213,7 @@ o => o.id === window.dragObject
 if(obj){
 
 obj.x =
+
 (
 pos.x - window.panX
 )
@@ -215,6 +221,7 @@ pos.x - window.panX
 window.scale;
 
 obj.y =
+
 (
 pos.y - window.panY
 )
@@ -230,12 +237,9 @@ return;
 }
 
 
-// =========================
-// PAN VIEW
-// =========================
+// PAN
 
-if(!window.draggingCanvas)
-return;
+if(window.draggingCanvas){
 
 window.panX =
 pos.x - window.startX;
@@ -245,6 +249,8 @@ pos.y - window.startY;
 
 window.updateTransform();
 
+}
+
 };
 
 
@@ -253,6 +259,12 @@ window.updateTransform();
 // =========================
 
 window.endInteraction = function(){
+
+setTimeout(()=>{
+
+window.isTouchDragging = false;
+
+},50);
 
 window.dragObject = null;
 
@@ -268,40 +280,69 @@ window.draggingCanvas = false;
 // =========================
 
 window.svg.addEventListener(
+
 "mousedown",
-window.startInteraction
+
+function(e){
+
+window.beginInteraction(e);
+
+}
+
 );
 
+
 window.addEventListener(
+
 "mousemove",
-window.moveInteraction
+
+function(e){
+
+window.moveInteraction(e);
+
+}
+
 );
 
+
 window.addEventListener(
+
 "mouseup",
-window.endInteraction
+
+function(){
+
+window.endInteraction();
+
+}
+
 );
 
 
 // =========================
-// MOBILE EVENTS
+// TOUCH EVENTS
 // =========================
 
 window.svg.addEventListener(
+
 "touchstart",
+
 function(e){
 
 e.preventDefault();
 
-window.startInteraction(e);
+window.beginInteraction(e);
 
 },
+
 { passive:false }
+
 );
 
 
 window.addEventListener(
+
 "touchmove",
+
 function(e){
 
 e.preventDefault();
@@ -309,27 +350,35 @@ e.preventDefault();
 window.moveInteraction(e);
 
 },
+
 { passive:false }
+
 );
 
 
 window.addEventListener(
+
 "touchend",
-function(e){
+
+function(){
 
 window.endInteraction();
 
 },
+
 { passive:false }
+
 );
 
 
 // =========================
-// ZOOM DESKTOP
+// DESKTOP ZOOM
 // =========================
 
 window.svg.addEventListener(
+
 "wheel",
+
 function(e){
 
 e.preventDefault();
@@ -347,6 +396,7 @@ window.scale *= 0.9;
 window.updateTransform();
 
 }
+
 );
 
 
@@ -355,8 +405,13 @@ window.updateTransform();
 // =========================
 
 window.svg.addEventListener(
+
 "click",
+
 function(e){
+
+if(window.isTouchDragging)
+return;
 
 if(!window.adminMode)
 return;
@@ -403,4 +458,5 @@ window.selectedObject.shape;
 window.renderScene();
 
 }
+
 );
