@@ -209,29 +209,50 @@ const right = metabolites[i+1];
 
 if(!left || !right) continue;
 
+const startX =
+left.x + left.width/2;
+
+const startY =
+left.y;
+
+const endX =
+right.x - right.width/2;
+
+const endY =
+right.y;
+
+const curveX =
+(startX + endX)/2;
+
+const curveY =
+startY - 120;
+
+
 canvas.innerHTML += `
 
-<line
+<path
 
-x1="${left.x + left.width/2}"
+d="
 
-y1="${left.y}"
+M ${startX} ${startY}
 
-x2="${right.x - right.width/2}"
+Q ${curveX} ${curveY}
 
-y2="${right.y}"
+${endX} ${endY}
+
+"
 
 stroke="white"
 
 stroke-width="4"
+
+fill="none"
 
 marker-end="url(#arrowhead)"
 
 />
 
 `;
-
-}
 
 
 // OBJECTS
