@@ -1,16 +1,26 @@
 const canvas = document.getElementById("canvas");
 const svg = document.getElementById("viewer");
 
+
+// ======================
+// STATE
+// ======================
+
 let objects = [];
+
 let selectedObject = null;
+
 let adminMode = false;
 
 let scale = 1;
+
 let panX = 0;
 let panY = 0;
 
 let draggingCanvas = false;
+
 let dragObject = null;
+
 let resizeObject = null;
 
 let startX = 0;
@@ -24,17 +34,6 @@ let startY = 0;
 document.getElementById(
 "linearBtn"
 ).onclick = function(){
-
-createLinear();
-
-};
-
-
-// ======================
-// CREATE LINEAR FUNCTION
-// ======================
-
-function createLinear(){
 
 const mol1 =
 document.getElementById("mol1").value;
@@ -116,9 +115,7 @@ x:850,
 
 y:220 + objects.length*40,
 
-fill:"#00ff88",
-
-shape:"rect"
+fill:"#00ff88"
 
 });
 
@@ -143,7 +140,7 @@ height:60,
 
 fill:"#9c27b0",
 
-shape:"rect"
+shape:"pill"
 
 });
 
@@ -168,13 +165,13 @@ height:60,
 
 fill:"#673ab7",
 
-shape:"rect"
+shape:"pill"
 
 });
 
 render();
 
-}
+};
 
 
 // ======================
@@ -206,6 +203,7 @@ const radius = 320;
 names.forEach((name,index)=>{
 
 const angle =
+
 (index/names.length)
 *
 Math.PI
@@ -269,13 +267,26 @@ objects.filter(
 o => o.type==="metabolite"
 );
 
-for(let i=0;i<metabolites.length-1;i+=2){
 
-const left = metabolites[i];
-const right = metabolites[i+1];
+for(
+let i=0;
+i<metabolites.length;
+i++
+){
+
+const left =
+metabolites[i];
+
+const right =
+metabolites[
+(i+1)
+%
+metabolites.length
+];
 
 if(!left || !right)
 continue;
+
 
 const startX =
 left.x + left.width/2;
@@ -289,11 +300,13 @@ right.x - right.width/2;
 const endY =
 right.y;
 
+
 const curveX =
 (startX + endX)/2;
 
 const curveY =
-startY - 120;
+(startY + endY)/2 - 120;
+
 
 canvas.innerHTML += `
 
@@ -544,7 +557,7 @@ render();
 
 
 // ======================
-// APPLY
+// APPLY CHANGES
 // ======================
 
 document.getElementById(
@@ -575,7 +588,7 @@ render();
 
 
 // ======================
-// DELETE BUTTON
+// DELETE
 // ======================
 
 document.getElementById(
@@ -597,7 +610,7 @@ render();
 
 
 // ======================
-// DUPLICATE BUTTON
+// DUPLICATE
 // ======================
 
 document.getElementById(
@@ -798,7 +811,7 @@ return;
 }
 
 
-// DRAG OBJECT
+// DRAG
 
 if(dragObject){
 
@@ -864,7 +877,7 @@ scale(${scale})
 
 
 // ======================
-// KEYBOARD
+// KEYBOARD SHORTCUTS
 // ======================
 
 window.addEventListener(
