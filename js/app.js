@@ -11,7 +11,7 @@ let panY = 0;
 
 let draggingCanvas = false;
 let dragObject = null;
-
+let resizeObject = null;
 let startX = 0;
 let startY = 0;
 
@@ -309,7 +309,26 @@ text-anchor="middle"
 ${obj.label}
 
 </text>
+${selectedObject &&
+selectedObject.id===obj.id
+? `
 
+<circle
+
+cx="${obj.x + obj.width/2}"
+
+cy="${obj.y + obj.height/2}"
+
+r="10"
+
+fill="#00ff88"
+
+data-resize="${obj.id}"
+
+/>
+
+`
+: ""}
 `;
 
 });
@@ -356,7 +375,8 @@ if(!adminMode) return;
 
 const id =
 e.target.dataset.id;
-
+const resizeId =
+e.target.dataset.resize;
 if(!id) return;
 
 selectedObject =
@@ -491,7 +511,13 @@ function(e){
 
 const id =
 e.target.dataset.id;
+if(resizeId){
 
+resizeObject = resizeId;
+
+return;
+
+}
 if(id){
 
 dragObject = id;
