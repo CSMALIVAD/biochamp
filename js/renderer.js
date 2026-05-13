@@ -1,144 +1,90 @@
-import { state }
-from "./state.js";
-
-const canvas =
-document.getElementById(
-"canvas"
-);
+// =====================================================
+// renderer.js
+// BioChamp Rendering Engine
+// =====================================================
 
 
-// ======================
-// MAIN RENDER
-// ======================
+// =========================
+// MAIN RENDER FUNCTION
+// =========================
 
-export function render(){
+window.renderScene = function(){
 
-canvas.innerHTML = "";
+if(!window.canvas) return;
 
-renderConnections();
-
-renderObjects();
-
-updateTransform();
-
-}
+window.canvas.innerHTML = "";
 
 
-// ======================
-// CONNECTIONS
-// ======================
+// =========================
+// DRAW CONNECTIONS FIRST
+// =========================
 
-function renderConnections(){
+if(window.drawConnections){
 
-const metabolites =
-state.objects.filter(
-o => o.type === "metabolite"
-);
-
-for(
-let i=0;
-i<metabolites.length-1;
-i+=2
-){
-
-const left =
-metabolites[i];
-
-const right =
-metabolites[i+1];
-
-if(!left || !right)
-continue;
-
-canvas.innerHTML += `
-
-<line
-
-x1="${left.x + left.width/2}"
-
-y1="${left.y}"
-
-x2="${right.x - right.width/2}"
-
-y2="${right.y}"
-
-class="arrow"
-
-/>
-
-`;
-
-}
+window.drawConnections();
 
 }
 
 
-// ======================
-// OBJECTS
-// ======================
+// =========================
+// DRAW OBJECTS
+// =========================
 
-function renderObjects(){
-
-state.objects.forEach(obj=>{
+if(!window.objects) return;
 
 
-// ENZYME
-
-if(obj.type==="enzyme"){
-
-canvas.innerHTML += `
-
-<text
-
-x="${obj.x}"
-
-y="${obj.y}"
-
-fill="${obj.fill}"
-
-font-size="28"
-
-text-anchor="middle"
-
-class="node"
-
-data-id="${obj.id}"
-
-onclick="selectObject('${obj.id}')"
-
->
-
-${obj.label}
-
-</text>
-
-`;
-
-return;
-
-}
+window.objects.forEach(obj=>{
 
 
-// SHAPE SYSTEM
+// =========================
+// SHAPE ROUNDING
+// =========================
 
 let rx = 20;
 
-if(obj.shape==="circle"){
+if(obj.shape === "circle"){
 
 rx = 1000;
 
 }
 
-if(obj.shape==="pill"){
+if(obj.shape === "pill"){
 
 rx = 60;
 
 }
 
 
-// MAIN OBJECT
+// =========================
+// SELECTED STYLE
+// =========================
 
-canvas.innerHTML += `
+let selectedClass = "";
+
+if(
+
+window.selectedObject &&
+window.selectedObject.id === obj.id
+
+){
+
+selectedClass = "selected";
+
+}
+
+
+// =========================
+// METABOLITES / COFACTORS
+// =========================
+
+if(
+
+obj.type === "metabolite" ||
+obj.type === "cofactor"
+
+){
+
+window.canvas.innerHTML += `
 
 <rect
 
@@ -158,11 +104,9 @@ stroke="white"
 
 stroke-width="2"
 
-class="node"
+class="node ${selectedClass}"
 
 data-id="${obj.id}"
-
-onclick="selectObject('${obj.id}')"
 
 />
 
@@ -172,7 +116,11 @@ x="${obj.x}"
 
 y="${obj.y + 8}"
 
-class="label"
+fill="white"
+
+font-size="20"
+
+text-anchor="middle"
 
 >
 
@@ -182,26 +130,103 @@ ${obj.label}
 
 `;
 
+}
+
+
+// =========================
+// ENZYMES
+// =========================
+
+if(obj.type === "enzyme"){
+
+window.canvas.innerHTML += `
+
+<text
+
+x="${obj.x}"
+
+y="${obj.y}"
+
+fill="${obj.fill}"
+
+font-size="28"
+
+font-weight="bold"
+
+text-anchor="middle"
+
+class="node"
+
+data-id="${obj.id}"
+
+>
+
+${obj.label}
+
+</text>
+
+`;
+
+}
+
+
+// =========================
+// RESIZE HANDLE
+// =========================
+
+if(
+
+window.selectedObject &&
+window.selectedObject.id === obj.id
+
+){
+
+window.canvas.innerHTML += `
+
+<circle
+
+cx="${obj.x + obj.width/2}"
+
+cy="${obj.y + obj.height/2}"
+
+r="10"
+
+fill="#00ff88"
+
+data-resize="${obj.id}"
+
+/>
+
+`;
+
+}
+
 });
 
-}
 
+// =========================
+// UPDATE VIEW TRANSFORM
+// =========================
 
-// ======================
-// UPDATE VIEW
-// ======================
+if(window.updateTransform){
 
-export function updateTransform(){
-
-canvas.setAttribute(
-
-"transform",
-
-`
-translate(${state.panX},${state.panY})
-scale(${state.scale})
-`
-
-);
+window.updateTransform();
 
 }
+
+};
+
+
+// =====================================================
+// INITIAL RENDER
+// =====================================================
+
+setTimeout(()=>{
+
+if(window.renderScene){
+
+window.renderScene();
+
+}
+
+},100);
