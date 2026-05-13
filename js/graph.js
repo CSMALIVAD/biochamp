@@ -1,42 +1,113 @@
-// =========================
+// =====================================================
 // graph.js
-// BioChamp Connection Engine
+// BioChamp Advanced Connection Engine
+// =====================================================
+
+
+// =========================
+// GLOBAL CONNECTION STATE
 // =========================
 
-// GLOBAL CONNECTION STORAGE
+window.connections =
+window.connections || [];
 
-window.connections = window.connections || [];
+window.connectMode = false;
+
+window.connectionStartNode = null;
+
+window.selectedConnection = null;
+
+
+// =========================
+// TOGGLE CONNECT MODE
+// =========================
+
+window.toggleConnectMode = function(){
+
+window.connectMode =
+!window.connectMode;
+
+window.connectionStartNode = null;
+
+if(window.connectMode){
+
+alert(
+"Connection Mode Enabled"
+);
+
+}else{
+
+alert(
+"Connection Mode Disabled"
+);
+
+}
+
+};
 
 
 // =========================
 // CREATE CONNECTION
 // =========================
 
-window.createConnection = function(fromId,toId){
+window.createConnection = function(
+
+fromId,
+toId,
+options={}
+
+){
+
+// PREVENT DUPLICATES
+
+const exists =
+window.connections.find(
+
+c =>
+
+c.from === fromId &&
+c.to === toId
+
+);
+
+if(exists) return;
+
 
 const connection = {
 
 id:
-"conn_" + Date.now() + Math.random(),
+"conn_" +
+Date.now() +
+Math.random(),
 
 from: fromId,
 
 to: toId,
 
-label: "",
+label:
+options.label || "",
 
-reversible: false,
+reversible:
+options.reversible || false,
 
-color: "white",
+color:
+options.color || "white",
 
-width: 4
+width:
+options.width || 4
 
 };
 
-window.connections.push(connection);
+
+window.connections.push(
+connection
+);
+
 
 if(window.renderScene){
+
 window.renderScene();
+
 }
 
 };
@@ -46,15 +117,23 @@ window.renderScene();
 // REMOVE CONNECTION
 // =========================
 
-window.removeConnection = function(connectionId){
+window.removeConnection = function(
+connectionId
+){
 
 window.connections =
+
 window.connections.filter(
+
 conn => conn.id !== connectionId
+
 );
 
+
 if(window.renderScene){
+
 window.renderScene();
+
 }
 
 };
@@ -64,20 +143,26 @@ window.renderScene();
 // REMOVE OBJECT CONNECTIONS
 // =========================
 
-window.removeObjectConnections = function(objectId){
+window.removeObjectConnections = function(
+objectId
+){
 
 window.connections =
+
 window.connections.filter(
+
 conn =>
+
 conn.from !== objectId &&
 conn.to !== objectId
+
 );
 
 };
 
 
 // =========================
-// DRAW ALL CONNECTIONS
+// DRAW CONNECTIONS
 // =========================
 
 window.drawConnections = function(){
@@ -88,38 +173,78 @@ if(!window.objects) return;
 
 if(!window.canvas) return;
 
+
 window.connections.forEach(conn=>{
 
+
 const fromObj =
+
 window.objects.find(
 o => o.id === conn.from
 );
 
 const toObj =
+
 window.objects.find(
 o => o.id === conn.to
 );
 
-if(!fromObj || !toObj) return;
+
+if(!fromObj || !toObj)
+return;
+
+
+// =========================
+// COORDINATES
+// =========================
 
 const startX =
-fromObj.x + fromObj.width/2;
+
+fromObj.x +
+fromObj.width/2;
 
 const startY =
 fromObj.y;
 
 const endX =
-toObj.x - toObj.width/2;
+
+toObj.x -
+toObj.width/2;
 
 const endY =
 toObj.y;
 
+
 const curveX =
+
 (startX + endX)/2;
 
 const curveY =
+
 (startY + endY)/2 - 120;
 
+
+// =========================
+// SELECTED STYLE
+// =========================
+
+let opacity = 1;
+
+if(
+
+window.selectedConnection &&
+window.selectedConnection.id === conn.id
+
+){
+
+opacity = 0.6;
+
+}
+
+
+// =========================
+// MAIN PATH
+// =========================
 
 window.canvas.innerHTML += `
 
@@ -137,6 +262,8 @@ stroke-width="${conn.width}"
 
 fill="none"
 
+opacity="${opacity}"
+
 marker-end="url(#arrowhead)"
 
 class="connection-path"
@@ -148,7 +275,9 @@ data-connection="${conn.id}"
 `;
 
 
-// REVERSIBLE ARROW
+// =========================
+// REVERSIBLE REACTION
+// =========================
 
 if(conn.reversible){
 
@@ -168,9 +297,9 @@ stroke-width="${conn.width}"
 
 fill="none"
 
-marker-end="url(#arrowhead)"
+opacity="0.5"
 
-opacity="0.6"
+marker-end="url(#arrowhead)"
 
 />
 
@@ -179,9 +308,14 @@ opacity="0.6"
 }
 
 
+// =========================
 // CONNECTION LABEL
+// =========================
 
-if(conn.label && conn.label.trim() !== ""){
+if(
+conn.label &&
+conn.label.trim() !== ""
+){
 
 window.canvas.innerHTML += `
 
@@ -189,7 +323,7 @@ window.canvas.innerHTML += `
 
 x="${curveX}"
 
-y="${curveY - 15}"
+y="${curveY - 20}"
 
 fill="white"
 
@@ -198,7 +332,9 @@ font-size="18"
 text-anchor="middle"
 
 >
+
 ${conn.label}
+
 </text>
 
 `;
@@ -211,14 +347,156 @@ ${conn.label}
 
 
 // =========================
+// CONNECTION CLICK
+// =========================
+
+window.svg.addEventListener(
+"click",
+function(e){
+
+const connId =
+e.target.dataset.connection;
+
+if(!connId) return;
+
+window.selectedConnection =
+
+window.connections.find(
+c => c.id === connId
+);
+
+}
+);
+
+
+// =========================
+// MANUAL NODE CONNECTION
+// =========================
+
+window.svg.addEventListener(
+"dblclick",
+function(e){
+
+if(!window.connectMode)
+return;
+
+const id =
+e.target.dataset.id;
+
+if(!id)
+return;
+
+
+// FIRST NODE
+
+if(!window.connectionStartNode){
+
+window.connectionStartNode =
+id;
+
+return;
+
+}
+
+
+// SECOND NODE
+
+if(
+window.connectionStartNode &&
+window.connectionStartNode !== id
+){
+
+window.createConnection(
+
+window.connectionStartNode,
+id
+
+);
+
+window.connectionStartNode =
+null;
+
+}
+
+}
+);
+
+
+// =========================
+// AUTO CONNECT LINEAR
+// =========================
+
+window.autoConnectLinear = function(
+nodeList
+){
+
+if(nodeList.length < 2)
+return;
+
+for(
+let i=0;
+i<nodeList.length-1;
+i++
+){
+
+window.createConnection(
+
+nodeList[i].id,
+nodeList[i+1].id
+
+);
+
+}
+
+};
+
+
+// =========================
+// AUTO CONNECT CIRCULAR
+// =========================
+
+window.autoConnectCircular = function(
+nodeList
+){
+
+if(nodeList.length < 2)
+return;
+
+for(
+let i=0;
+i<nodeList.length;
+i++
+){
+
+window.createConnection(
+
+nodeList[i].id,
+
+nodeList[
+(i+1)%nodeList.length
+].id
+
+);
+
+}
+
+};
+
+
+// =========================
 // SAVE CONNECTIONS
 // =========================
 
 window.saveConnections = function(){
 
 localStorage.setItem(
+
 "biochamp_connections",
-JSON.stringify(window.connections)
+
+JSON.stringify(
+window.connections
+)
+
 );
 
 };
@@ -231,6 +509,7 @@ JSON.stringify(window.connections)
 window.loadConnections = function(){
 
 const data =
+
 localStorage.getItem(
 "biochamp_connections"
 );
@@ -238,6 +517,7 @@ localStorage.getItem(
 if(data){
 
 window.connections =
+
 JSON.parse(data);
 
 }
@@ -246,41 +526,33 @@ JSON.parse(data);
 
 
 // =========================
-// AUTO CONNECT LINEAR
+// DELETE SELECTED CONNECTION
 // =========================
 
-window.autoConnectLinear = function(nodeList){
+window.addEventListener(
+"keydown",
+function(e){
 
-if(nodeList.length < 2) return;
+if(
+e.key === "Backspace"
+){
 
-for(let i=0;i<nodeList.length-1;i++){
+if(
+window.selectedConnection
+){
 
-window.createConnection(
-nodeList[i].id,
-nodeList[i+1].id
+window.removeConnection(
+
+window.selectedConnection.id
+
 );
+
+window.selectedConnection =
+null;
 
 }
 
-};
-
-
-// =========================
-// AUTO CONNECT CIRCULAR
-// =========================
-
-window.autoConnectCircular = function(nodeList){
-
-if(nodeList.length < 2) return;
-
-for(let i=0;i<nodeList.length;i++){
-
-window.createConnection(
-nodeList[i].id,
-nodeList[(i+1)%nodeList.length].id
-);
-
 }
 
-};
-
+}
+);
