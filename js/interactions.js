@@ -1,114 +1,106 @@
-import { state }
-from "./state.js";
+// =====================================================
+// interactions.js
+// BioChamp Interaction Engine
+// =====================================================
 
-import {
-render,
-updateTransform
-}
-from "./renderer.js";
 
-const svg=
-document.getElementById(
-"viewer"
+// =========================
+// GLOBAL INTERACTION STATE
+// =========================
+
+window.dragObject = null;
+
+window.resizeObject = null;
+
+window.draggingCanvas = false;
+
+window.startX = 0;
+
+window.startY = 0;
+
+window.scale = 1;
+
+window.panX = 0;
+
+window.panY = 0;
+
+
+// =========================
+// UPDATE TRANSFORM
+// =========================
+
+window.updateTransform = function(){
+
+if(!window.canvas) return;
+
+window.canvas.setAttribute(
+
+"transform",
+
+`
+translate(${window.panX},${window.panY})
+scale(${window.scale})
+`
+
 );
 
+};
 
+
+// =========================
 // ZOOM
+// =========================
 
-svg.addEventListener(
+window.svg.addEventListener(
 "wheel",
-(e)=>{
+function(e){
 
 e.preventDefault();
 
-if(e.deltaY<0){
+if(e.deltaY < 0){
 
-state.scale*=1.1;
+window.scale *= 1.1;
+
+}else{
+
+window.scale *= 0.9;
 
 }
-else{
 
-state.scale*=0.9;
-
-}
-
-updateTransform();
+window.updateTransform();
 
 }
 );
 
 
+// =========================
 // MOUSE DOWN
+// =========================
 
-svg.addEventListener(
+window.svg.addEventListener(
 "mousedown",
-(e)=>{
+function(e){
 
-const id=
-e.target.dataset.id;
+const resizeId =
+e.target.dataset.resize;
 
-if(id){
+if(resizeId){
 
-state.dragObject=id;
+window.resizeObject =
+resizeId;
 
 return;
 
 }
 
-state.isDraggingCanvas=true;
 
-state.startX=
-e.clientX-state.panX;
+const id =
+e.target.dataset.id;
 
-state.startY=
-e.clientY-state.panY;
+if(id){
 
-}
-);
-
-
-// MOUSE UP
-
-window.addEventListener(
-"mouseup",
-()=>{
-
-state.dragObject=null;
-
-state.isDraggingCanvas=false;
-
-}
-);
-
-
-// MOUSE MOVE
-
-window.addEventListener(
-"mousemove",
-(e)=>{
-
-// DRAG OBJECT
-
-if(state.dragObject){
-
-const obj=
-state.objects.find(
-o=>o.id===state.dragObject
-);
-
-if(obj){
-
-obj.x=
-(e.clientX-state.panX)
-/state.scale;
-
-obj.y=
-(e.clientY-state.panY)
-/state.scale;
-
-render();
-
-}
+window.dragObject =
+id;
 
 return;
 
@@ -117,79 +109,199 @@ return;
 
 // PAN
 
-if(!state.isDraggingCanvas)
-return;
+window.draggingCanvas =
+true;
 
-state.panX=
-e.clientX-state.startX;
+window.startX =
+e.clientX - window.panX;
 
-state.panY=
-e.clientY-state.startY;
-
-updateTransform();
-
-}
-);
-const adminBar=
-document.getElementById(
-"adminBar"
-);
-
-let draggingPanel=false;
-
-let panelOffsetX=0;
-
-let panelOffsetY=0;
-
-
-// PANEL DRAG START
-
-adminBar.addEventListener(
-"mousedown",
-(e)=>{
-
-draggingPanel=true;
-
-panelOffsetX=
-e.offsetX;
-
-panelOffsetY=
-e.offsetY;
+window.startY =
+e.clientY - window.panY;
 
 }
 );
 
 
-// PANEL DRAG END
+// =========================
+// MOUSE UP
+// =========================
 
 window.addEventListener(
 "mouseup",
-()=>{
+function(){
 
-draggingPanel=false;
+window.dragObject = null;
+
+window.resizeObject = null;
+
+window.draggingCanvas = false;
 
 }
 );
 
 
-// PANEL DRAG MOVE
+// =========================
+// MOUSE MOVE
+// =========================
 
 window.addEventListener(
 "mousemove",
-(e)=>{
+function(e){
 
-if(!draggingPanel)
+// =========================
+// RESIZE OBJECT
+// =========================
+
+if(window.resizeObject){
+
+const obj =
+window.objects.find(
+o => o.id === window.resizeObject
+);
+
+if(obj){
+
+obj.width = Math.max(
+
+80,
+
+(
+(e.clientX - window.panX)
+/
+window.scale
+)
+-
+obj.x
++
+obj.width/2
+
+);
+
+obj.height = Math.max(
+
+40,
+
+(
+(e.clientY - window.panY)
+/
+window.scale
+)
+-
+obj.y
++
+obj.height/2
+
+);
+
+window.renderScene();
+
+}
+
 return;
 
-adminBar.style.left=
-(e.clientX-panelOffsetX)
-+"px";
+}
 
-adminBar.style.top=
-(e.clientY-panelOffsetY)
-+"px";
 
-adminBar.style.right="auto";
+// =========================
+// DRAG OBJECT
+// =========================
+
+if(window.dragObject){
+
+const obj =
+window.objects.find(
+o => o.id === window.dragObject
+);
+
+if(obj){
+
+obj.x =
+(
+e.clientX - window.panX
+)
+/
+window.scale;
+
+obj.y =
+(
+e.clientY - window.panY
+)
+/
+window.scale;
+
+window.renderScene();
+
+}
+
+return;
+
+}
+
+
+// =========================
+// PAN CANVAS
+// =========================
+
+if(!window.draggingCanvas)
+return;
+
+window.panX =
+e.clientX - window.startX;
+
+window.panY =
+e.clientY - window.startY;
+
+window.updateTransform();
+
+}
+);
+
+
+// =========================
+// OBJECT SELECTION
+// =========================
+
+window.svg.addEventListener(
+"click",
+function(e){
+
+if(!window.adminMode)
+return;
+
+const id =
+e.target.dataset.id;
+
+if(!id)
+return;
+
+window.selectedObject =
+window.objects.find(
+o => o.id === id
+);
+
+if(!window.selectedObject)
+return;
+
+
+// LOAD EDITOR VALUES
+
+document.getElementById(
+"editLabel"
+).value =
+window.selectedObject.label;
+
+document.getElementById(
+"editColor"
+).value =
+window.selectedObject.fill;
+
+document.getElementById(
+"editShape"
+).value =
+window.selectedObject.shape;
+
+
+window.renderScene();
 
 }
 );
