@@ -35,6 +35,9 @@ document.getElementById(
 "linearBtn"
 ).onclick = function(){
 
+const pathwayId =
+"linear"+Date.now();
+
 const mol1 =
 document.getElementById("mol1").value;
 
@@ -56,6 +59,8 @@ document.getElementById("coOut").value;
 objects.push({
 
 id:"a"+Date.now(),
+
+pathwayId,
 
 type:"metabolite",
 
@@ -82,6 +87,8 @@ objects.push({
 
 id:"b"+Date.now(),
 
+pathwayId,
+
 type:"metabolite",
 
 label:mol2,
@@ -107,6 +114,8 @@ objects.push({
 
 id:"c"+Date.now(),
 
+pathwayId,
+
 type:"enzyme",
 
 label:enzyme,
@@ -125,6 +134,8 @@ fill:"#00ff88"
 objects.push({
 
 id:"d"+Date.now(),
+
+pathwayId,
 
 type:"cofactor",
 
@@ -150,6 +161,8 @@ shape:"pill"
 objects.push({
 
 id:"e"+Date.now(),
+
+pathwayId,
 
 type:"cofactor",
 
@@ -182,21 +195,52 @@ document.getElementById(
 "circleBtn"
 ).onclick = function(){
 
+const pathwayId =
+"circle"+Date.now();
+
+const mol1 =
+document.getElementById(
+"mol1"
+).value;
+
+const mol2 =
+document.getElementById(
+"mol2"
+).value;
+
+const enzyme =
+document.getElementById(
+"enzyme"
+).value;
+
+const coIn =
+document.getElementById(
+"coIn"
+).value;
+
+const coOut =
+document.getElementById(
+"coOut"
+).value;
+
+
 const names = [
 
-"Oxaloacetate",
-"Citrate",
-"Isocitrate",
-"α-Ketoglutarate",
-"Succinyl-CoA",
-"Succinate",
-"Fumarate",
-"Malate"
+mol1,
+mol2,
+enzyme,
+coIn,
+coOut
 
-];
+].filter(
+n => n.trim() !== ""
+);
+
 
 const centerX = 900;
+
 const centerY = 500;
+
 const radius = 320;
 
 
@@ -224,7 +268,10 @@ radius;
 
 objects.push({
 
-id:"circle"+Date.now()+index,
+id:
+"circle"+Date.now()+index,
+
+pathwayId,
 
 type:"metabolite",
 
@@ -260,13 +307,53 @@ function render(){
 canvas.innerHTML = "";
 
 
+// GROUPS
+
+const pathwayGroups = {};
+
+objects.forEach(obj=>{
+
+if(!pathwayGroups[obj.pathwayId]){
+
+pathwayGroups[obj.pathwayId] = [];
+
+}
+
+pathwayGroups[obj.pathwayId].push(obj);
+
+});
+
+
 // CONNECTIONS
 
+Object.values(pathwayGroups)
+.forEach(group=>{
+
 const metabolites =
-objects.filter(
-o => o.type==="metabolite"
+group.filter(
+o=>o.type==="metabolite"
 );
 
+
+// LINEAR
+
+if(group[0].pathwayId.startsWith("linear")){
+
+if(metabolites.length>=2){
+
+drawArrow(
+metabolites[0],
+metabolites[1]
+);
+
+}
+
+}
+
+
+// CIRCULAR
+
+if(group[0].pathwayId.startsWith("circle")){
 
 for(
 let i=0;
@@ -284,57 +371,13 @@ metabolites[
 metabolites.length
 ];
 
-if(!left || !right)
-continue;
-
-
-const startX =
-left.x + left.width/2;
-
-const startY =
-left.y;
-
-const endX =
-right.x - right.width/2;
-
-const endY =
-right.y;
-
-
-const curveX =
-(startX + endX)/2;
-
-const curveY =
-(startY + endY)/2 - 120;
-
-
-canvas.innerHTML += `
-
-<path
-
-d="
-
-M ${startX} ${startY}
-
-Q ${curveX} ${curveY}
-
-${endX} ${endY}
-
-"
-
-stroke="white"
-
-stroke-width="4"
-
-fill="none"
-
-marker-end="url(#arrowhead)"
-
-/>
-
-`;
+drawArrow(left,right);
 
 }
+
+}
+
+});
 
 
 // OBJECTS
@@ -476,6 +519,60 @@ data-resize="${obj.id}"
 
 
 updateTransform();
+
+}
+
+
+// ======================
+// DRAW ARROW
+// ======================
+
+function drawArrow(left,right){
+
+const startX =
+left.x + left.width/2;
+
+const startY =
+left.y;
+
+const endX =
+right.x - right.width/2;
+
+const endY =
+right.y;
+
+const curveX =
+(startX + endX)/2;
+
+const curveY =
+(startY + endY)/2 - 120;
+
+
+canvas.innerHTML += `
+
+<path
+
+d="
+
+M ${startX} ${startY}
+
+Q ${curveX} ${curveY}
+
+${endX} ${endY}
+
+"
+
+stroke="white"
+
+stroke-width="4"
+
+fill="none"
+
+marker-end="url(#arrowhead)"
+
+/>
+
+`;
 
 }
 
