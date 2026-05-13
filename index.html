@@ -7,14 +7,19 @@
 
 <meta
 name="viewport"
-content="width=device-width, initial-scale=1.0"
+content="
+width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no
+"
 />
 
 <title>BioChamp</title>
 
 <link
 rel="stylesheet"
-href="css/style.css"
+href="css/style.css?v=20"
 />
 
 </head>
@@ -22,7 +27,9 @@ href="css/style.css"
 <body>
 
 
-<!-- LEFT CONTROL PANEL -->
+<!-- =====================================================
+LEFT CONTROL PANEL
+===================================================== -->
 
 <div id="panel">
 
@@ -53,6 +60,7 @@ id="coOut"
 placeholder="Cofactor Output"
 />
 
+
 <button id="linearBtn">
 Create Linear
 </button>
@@ -62,11 +70,11 @@ Create Circular
 </button>
 
 <button id="saveBtn">
-Save
+Save Project
 </button>
 
 <button id="loadBtn">
-Load
+Load Project
 </button>
 
 <button id="adminBtn">
@@ -76,7 +84,9 @@ Admin Login
 </div>
 
 
-<!-- ADMIN EDITOR -->
+<!-- =====================================================
+ADMIN PANEL
+===================================================== -->
 
 <div id="adminBar">
 
@@ -108,24 +118,49 @@ Pill
 
 </select>
 
+
 <button id="applyBtn">
 Apply Changes
-</button>
-
-<button id="deleteBtn">
-Delete Object
 </button>
 
 <button id="duplicateBtn">
 Duplicate Object
 </button>
 
+<button id="deleteBtn">
+Delete Object
+</button>
+
 </div>
 
 
-<!-- SVG CANVAS -->
+<!-- =====================================================
+FLOATING TOOLBAR
+===================================================== -->
+
+<div id="toolbar">
+
+<button id="connectModeBtn">
+Connect
+</button>
+
+<button id="resetViewBtn">
+Reset View
+</button>
+
+<button id="clearProjectBtn">
+Clear
+</button>
+
+</div>
+
+
+<!-- =====================================================
+SVG WORKSPACE
+===================================================== -->
 
 <svg id="viewer">
+
 
 <defs>
 
@@ -147,14 +182,31 @@ fill="white"
 
 </defs>
 
+
 <g id="canvas"></g>
 
 </svg>
 
 
-<!-- APP -->
+<!-- =====================================================
+SCRIPTS
+===================================================== -->
 
-<script
-type="module"
-src="js/app.js?v=10"
-></script>
+<script src="js/state.js?v=20"></script>
+
+<script src="js/graph.js?v=20"></script>
+
+<script src="js/renderer.js?v=20"></script>
+
+<script src="js/creators.js?v=20"></script>
+
+<script src="js/interactions.js?v=20"></script>
+
+<script src="js/admin.js?v=20"></script>
+
+<script src="js/storage.js?v=20"></script>
+
+<script src="js/app.js?v=20"></script>
+
+</body>
+</html>
