@@ -1,23 +1,128 @@
-export const state={
+// =====================================================
+// state.js
+// BioChamp Global State
+// =====================================================
 
-objects:[],
 
-selectedObject:null,
+// =========================
+// CORE GLOBALS
+// =========================
 
-adminMode:false,
+window.objects = [];
 
-scale:1,
+window.connections = [];
 
-panX:0,
+window.selectedObject = null;
 
-panY:0,
 
-isDraggingCanvas:false,
+// =========================
+// SVG REFERENCES
+// =========================
 
-dragObject:null,
+window.svg =
+document.getElementById(
+"viewer"
+);
 
-startX:0,
+window.canvas =
+document.getElementById(
+"canvas"
+);
 
-startY:0
+
+// =========================
+// VIEW STATE
+// =========================
+
+window.scale = 1;
+
+window.panX = 0;
+
+window.panY = 0;
+
+
+// =========================
+// INTERACTION STATE
+// =========================
+
+window.dragObject = null;
+
+window.resizeObject = null;
+
+window.draggingCanvas = false;
+
+window.startX = 0;
+
+window.startY = 0;
+
+
+// =========================
+// ADMIN STATE
+// =========================
+
+window.adminMode = false;
+
+
+// =========================
+// PROJECT METADATA
+// =========================
+
+window.project = {
+
+name: "BioChamp Project",
+
+created:
+new Date().toISOString(),
+
+modified:
+new Date().toISOString()
 
 };
+
+
+// =========================
+// UPDATE PROJECT TIME
+// =========================
+
+window.touchProject = function(){
+
+window.project.modified =
+new Date().toISOString();
+
+};
+
+
+// =========================
+// RESET PROJECT
+// =========================
+
+window.resetProject = function(){
+
+window.objects = [];
+
+window.connections = [];
+
+window.selectedObject = null;
+
+window.scale = 1;
+
+window.panX = 0;
+
+window.panY = 0;
+
+if(window.renderScene){
+
+window.renderScene();
+
+}
+
+};
+
+
+// =========================
+// DEBUG
+// =========================
+
+console.log(
+"BioChamp State Initialized"
+);
