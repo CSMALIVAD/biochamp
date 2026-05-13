@@ -1,127 +1,403 @@
-body{
-margin:0;
-background:black;
-font-family:Arial;
-overflow:hidden;
-color:white;
+/* =====================================================
+   BioChamp Professional UI
+===================================================== */
+
+*{
+
+box-sizing:border-box;
+
+-webkit-tap-highlight-color:transparent;
+
 }
+
+
+body{
+
+margin:0;
+
+overflow:hidden;
+
+background:#05070d;
+
+font-family:Arial,Helvetica,sans-serif;
+
+color:white;
+
+}
+
+
+/* =====================================================
+   LEFT PANEL
+===================================================== */
 
 #panel{
+
 position:absolute;
-top:20px;
-left:20px;
-z-index:20;
-background:#111;
-padding:20px;
-border-radius:14px;
-border:1px solid #333;
+
+top:15px;
+
+left:15px;
+
 width:320px;
+
+max-height:95vh;
+
+overflow:auto;
+
+background:rgba(15,20,35,0.88);
+
+backdrop-filter:blur(14px);
+
+border:1px solid rgba(255,255,255,0.08);
+
+border-radius:22px;
+
+padding:20px;
+
+z-index:1000;
+
+box-shadow:
+
+0 0 25px rgba(0,0,0,0.5);
+
 }
+
+
+/* =====================================================
+   ADMIN PANEL
+===================================================== */
 
 #adminBar{
+
 position:absolute;
-top:20px;
-right:20px;
-z-index:20;
-background:#111;
+
+top:15px;
+
+right:15px;
+
+width:300px;
+
+max-height:95vh;
+
+overflow:auto;
+
+background:rgba(15,20,35,0.88);
+
+backdrop-filter:blur(14px);
+
+border:1px solid rgba(255,255,255,0.08);
+
+border-radius:22px;
+
 padding:20px;
-border-radius:14px;
-border:1px solid #333;
-width:280px;
+
+z-index:1000;
+
 display:none;
-cursor:move;
-user-select:none;
+
+box-shadow:
+
+0 0 25px rgba(0,0,0,0.5);
+
 }
 
-h1,h2{
+
+/* =====================================================
+   TITLES
+===================================================== */
+
+h1{
+
 margin-top:0;
+
+font-size:34px;
+
+font-weight:800;
+
+letter-spacing:1px;
+
+background:linear-gradient(
+90deg,
+#00d4ff,
+#00ff88
+);
+
+-webkit-background-clip:text;
+
+-webkit-text-fill-color:transparent;
+
 }
+
+
+h2{
+
+margin-top:0;
+
+font-size:24px;
+
+}
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
 
 input,
-select,
-button{
-
-display:block;
+select{
 
 width:100%;
 
 margin-top:12px;
 
-padding:12px;
+padding:14px;
 
-background:#222;
+border:none;
 
-border:1px solid #444;
+outline:none;
+
+border-radius:14px;
+
+background:#101827;
 
 color:white;
 
-box-sizing:border-box;
-
-border-radius:8px;
-
 font-size:16px;
+
+border:1px solid rgba(255,255,255,0.08);
+
 }
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
 
 button{
-background:#00d4ff;
+
+width:100%;
+
+margin-top:12px;
+
+padding:14px;
+
 border:none;
-font-weight:bold;
+
+border-radius:14px;
+
+font-size:16px;
+
+font-weight:700;
+
 cursor:pointer;
+
+transition:0.2s;
+
+background:linear-gradient(
+135deg,
+#00d4ff,
+#0099ff
+);
+
+color:white;
+
 }
+
 
 button:hover{
-opacity:0.9;
+
+transform:translateY(-2px);
+
+filter:brightness(1.1);
+
 }
+
+
+button:active{
+
+transform:scale(0.97);
+
+}
+
+
+/* =====================================================
+   SVG VIEWER
+===================================================== */
 
 #viewer{
-position:absolute;
-top:0;
-left:0;
+
 width:100vw;
+
 height:100vh;
-background:black;
+
+background:
+
+radial-gradient(
+circle at center,
+#0c1325,
+#05070d
+);
+
+touch-action:none;
+
 }
+
+
+/* =====================================================
+   NODES
+===================================================== */
 
 .node{
-stroke:white;
-stroke-width:2;
+
 cursor:pointer;
+
+transition:0.2s;
+
 }
 
-.label{
-fill:white;
-font-size:20px;
-text-anchor:middle;
-pointer-events:none;
+
+.node:hover{
+
+filter:brightness(1.15);
+
 }
 
-.arrow{
-stroke:white;
-stroke-width:4;
-fill:none;
-marker-end:url(#arrowhead);
-}
 
-.enzyme{
-fill:#00ff88;
-font-size:18px;
-text-anchor:middle;
-pointer-events:none;
-}
+/* =====================================================
+   SELECTED OBJECT
+===================================================== */
 
 .selected{
-stroke:#00ff88;
-stroke-width:5;
+
+stroke:#00ff88 !important;
+
+stroke-width:6 !important;
+
+filter:
+
+drop-shadow(0 0 12px #00ff88)
+
+drop-shadow(0 0 22px #00ff88);
+
 }
 
-circle{
 
-cursor:nwse-resize;
-
-}
+/* =====================================================
+   TEXT
+===================================================== */
 
 text{
 
 pointer-events:none;
+
+user-select:none;
+
+font-family:Arial,Helvetica,sans-serif;
+
+}
+
+
+/* =====================================================
+   CONNECTIONS
+===================================================== */
+
+.connection-path{
+
+transition:0.2s;
+
+cursor:pointer;
+
+}
+
+
+.connection-path:hover{
+
+filter:
+
+drop-shadow(0 0 10px #00d4ff);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:900px){
+
+#panel{
+
+width:92vw;
+
+left:4vw;
+
+top:10px;
+
+padding:16px;
+
+max-height:42vh;
+
+}
+
+
+#adminBar{
+
+width:92vw;
+
+left:4vw;
+
+right:auto;
+
+top:auto;
+
+bottom:10px;
+
+padding:16px;
+
+max-height:40vh;
+
+}
+
+
+h1{
+
+font-size:28px;
+
+}
+
+
+input,
+select,
+button{
+
+font-size:18px;
+
+padding:16px;
+
+}
+
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#0b1020;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#1d2a44;
+
+border-radius:20px;
 
 }
