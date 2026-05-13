@@ -757,3 +757,62 @@ scale(${scale})
 );
 
 }
+window.addEventListener(
+"keydown",
+function(e){
+
+// DELETE KEY
+
+if(
+e.key==="Delete"
+){
+
+if(!selectedObject)
+return;
+
+objects = objects.filter(
+o => o.id !== selectedObject.id
+);
+
+selectedObject = null;
+
+render();
+
+}
+
+
+// DUPLICATE SHORTCUT
+
+if(
+e.ctrlKey &&
+e.key==="d"
+){
+
+e.preventDefault();
+
+if(!selectedObject)
+return;
+
+const copy = {
+
+...selectedObject,
+
+id:
+"copy"+Date.now(),
+
+x:
+selectedObject.x+80,
+
+y:
+selectedObject.y+80
+
+};
+
+objects.push(copy);
+
+render();
+
+}
+
+}
+);
