@@ -1,39 +1,42 @@
-import { state }
-from "./state.js";
-
-import {
-render
-}
-from "./renderer.js";
+// =====================================================
+// admin.js
+// BioChamp Admin Engine
+// =====================================================
 
 
-// ======================
+// =========================
+// ADMIN MODE
+// =========================
+
+window.adminMode = false;
+
+
+// =========================
 // ADMIN LOGIN
-// ======================
+// =========================
 
-export function adminLogin(){
+document.getElementById(
+"adminBtn"
+).onclick = function(){
 
-const password =
+const pass =
 prompt(
 "Enter Admin Password"
 );
 
-if(password === "biochamp"){
+if(pass === "biochamp"){
 
-state.adminMode = true;
+window.adminMode = true;
 
-document
-.getElementById(
+document.getElementById(
 "adminBar"
-)
-.style.display = "block";
+).style.display = "block";
 
 alert(
 "Admin Mode Enabled"
 );
 
-}
-else{
+}else{
 
 alert(
 "Wrong Password"
@@ -41,102 +44,204 @@ alert(
 
 }
 
-}
+};
 
 
-// ======================
-// SELECT OBJECT
-// ======================
+// =========================
+// APPLY CHANGES
+// =========================
 
-window.selectObject = function(id){
+document.getElementById(
+"applyBtn"
+).onclick = function(){
 
-if(!state.adminMode)
+if(!window.selectedObject)
 return;
-
-const obj =
-state.objects.find(
-o => o.id == id
-);
-
-if(!obj) return;
-
-state.selectedObject = obj;
 
 
 // LABEL
 
-document
-.getElementById(
+window.selectedObject.label =
+
+document.getElementById(
 "editLabel"
-)
-.value = obj.label || "";
+).value;
 
 
 // COLOR
 
-document
-.getElementById(
+window.selectedObject.fill =
+
+document.getElementById(
 "editColor"
-)
-.value = obj.fill || "#ffffff";
+).value;
 
 
 // SHAPE
 
-document
-.getElementById(
+window.selectedObject.shape =
+
+document.getElementById(
 "editShape"
-)
-.value = obj.shape || "rect";
+).value;
+
+
+window.renderScene();
 
 };
 
 
-// ======================
-// APPLY CHANGES
-// ======================
+// =========================
+// DELETE OBJECT
+// =========================
 
-export function applyChanges(){
+document.getElementById(
+"deleteBtn"
+).onclick = function(){
 
-if(!state.selectedObject)
+if(!window.selectedObject)
 return;
 
 
-// UPDATE LABEL
+// REMOVE CONNECTIONS
 
-state.selectedObject.label =
+if(window.removeObjectConnections){
 
-document
-.getElementById(
-"editLabel"
-)
-.value;
-
-
-// UPDATE COLOR
-
-state.selectedObject.fill =
-
-document
-.getElementById(
-"editColor"
-)
-.value;
-
-
-// UPDATE SHAPE
-
-state.selectedObject.shape =
-
-document
-.getElementById(
-"editShape"
-)
-.value;
-
-
-// RERENDER
-
-render();
+window.removeObjectConnections(
+window.selectedObject.id
+);
 
 }
+
+
+// REMOVE OBJECT
+
+window.objects =
+window.objects.filter(
+o => o.id !== window.selectedObject.id
+);
+
+
+window.selectedObject = null;
+
+window.renderScene();
+
+};
+
+
+// =========================
+// DUPLICATE OBJECT
+// =========================
+
+document.getElementById(
+"duplicateBtn"
+).onclick = function(){
+
+if(!window.selectedObject)
+return;
+
+
+const copy = {
+
+...window.selectedObject,
+
+id:
+"copy_" +
+Date.now(),
+
+x:
+window.selectedObject.x + 80,
+
+y:
+window.selectedObject.y + 80
+
+};
+
+
+window.objects.push(copy);
+
+window.renderScene();
+
+};
+
+
+// =========================
+// KEYBOARD SHORTCUTS
+// =========================
+
+window.addEventListener(
+"keydown",
+function(e){
+
+// DELETE
+
+if(e.key === "Delete"){
+
+if(!window.selectedObject)
+return;
+
+
+// REMOVE CONNECTIONS
+
+if(window.removeObjectConnections){
+
+window.removeObjectConnections(
+window.selectedObject.id
+);
+
+}
+
+
+// REMOVE OBJECT
+
+window.objects =
+window.objects.filter(
+o => o.id !== window.selectedObject.id
+);
+
+
+window.selectedObject = null;
+
+window.renderScene();
+
+}
+
+
+// DUPLICATE
+
+if(
+e.ctrlKey &&
+e.key === "d"
+){
+
+e.preventDefault();
+
+if(!window.selectedObject)
+return;
+
+
+const copy = {
+
+...window.selectedObject,
+
+id:
+"copy_" +
+Date.now(),
+
+x:
+window.selectedObject.x + 80,
+
+y:
+window.selectedObject.y + 80
+
+};
+
+
+window.objects.push(copy);
+
+window.renderScene();
+
+}
+
+}
+);
