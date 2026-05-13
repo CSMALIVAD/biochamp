@@ -482,6 +482,23 @@ render();
 };
 
 
+document.getElementById(
+"deleteBtn"
+).onclick = function(){
+
+if(!selectedObject)
+return;
+
+objects = objects.filter(
+o => o.id !== selectedObject.id
+);
+
+selectedObject = null;
+
+render();
+
+};
+
 // ======================
 // SAVE
 // ======================
