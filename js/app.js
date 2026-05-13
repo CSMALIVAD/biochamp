@@ -142,7 +142,6 @@ shape:"pill"
 render();
 
 };
-
 // LEFT NODE
 
 objects.push({
