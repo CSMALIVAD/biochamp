@@ -498,7 +498,33 @@ selectedObject = null;
 render();
 
 };
+document.getElementById(
+"duplicateBtn"
+).onclick = function(){
 
+if(!selectedObject)
+return;
+
+const copy = {
+
+...selectedObject,
+
+id:
+"copy" + Date.now(),
+
+x:
+selectedObject.x + 80,
+
+y:
+selectedObject.y + 80
+
+};
+
+objects.push(copy);
+
+render();
+
+};
 // ======================
 // SAVE
 // ======================
