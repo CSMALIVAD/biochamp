@@ -8,6 +8,8 @@ const svg = document.getElementById("viewer");
 
 let objects = [];
 
+let connections = [];
+
 let selectedObject = null;
 
 let adminMode = false;
@@ -25,6 +27,24 @@ let resizeObject = null;
 
 let startX = 0;
 let startY = 0;
+
+
+// ======================
+// CREATE CONNECTION
+// ======================
+
+function connect(from,to){
+
+connections.push({
+
+id:"conn"+Date.now(),
+
+from,
+to
+
+});
+
+}
 
 
 // ======================
@@ -56,7 +76,7 @@ document.getElementById("coOut").value;
 
 // LEFT
 
-objects.push({
+const left = {
 
 id:"a"+Date.now(),
 
@@ -78,12 +98,12 @@ fill:"#00d4ff",
 
 shape:"rect"
 
-});
+};
 
 
 // RIGHT
 
-objects.push({
+const right = {
 
 id:"b"+Date.now(),
 
@@ -105,12 +125,12 @@ fill:"#ff9800",
 
 shape:"rect"
 
-});
+};
 
 
 // ENZYME
 
-objects.push({
+const enz = {
 
 id:"c"+Date.now(),
 
@@ -126,12 +146,12 @@ y:220 + objects.length*40,
 
 fill:"#00ff88"
 
-});
+};
 
 
 // COFACTOR INPUT
 
-objects.push({
+const cin = {
 
 id:"d"+Date.now(),
 
@@ -153,12 +173,12 @@ fill:"#9c27b0",
 
 shape:"pill"
 
-});
+};
 
 
 // COFACTOR OUTPUT
 
-objects.push({
+const cout = {
 
 id:"e"+Date.now(),
 
@@ -180,7 +200,19 @@ fill:"#673ab7",
 
 shape:"pill"
 
-});
+};
+
+
+objects.push(left);
+objects.push(right);
+objects.push(enz);
+objects.push(cin);
+objects.push(cout);
+
+
+// CONNECTIONS
+
+connect(left.id,right.id);
 
 render();
 
@@ -198,56 +230,28 @@ document.getElementById(
 const pathwayId =
 "circle"+Date.now();
 
-const mol1 =
-document.getElementById(
-"mol1"
-).value;
-
-const mol2 =
-document.getElementById(
-"mol2"
-).value;
-
-const enzyme =
-document.getElementById(
-"enzyme"
-).value;
-
-const coIn =
-document.getElementById(
-"coIn"
-).value;
-
-const coOut =
-document.getElementById(
-"coOut"
-).value;
-
-
 const names = [
 
-mol1,
-mol2,
-enzyme,
-coIn,
-coOut
+document.getElementById("mol1").value,
+document.getElementById("enzyme").value,
+document.getElementById("mol2").value,
+document.getElementById("coIn").value,
+document.getElementById("coOut").value
 
 ].filter(
-n => n.trim() !== ""
+n=>n.trim()!==""
 );
 
-
 const centerX = 900;
-
 const centerY = 500;
-
 const radius = 320;
+
+const created = [];
 
 
 names.forEach((name,index)=>{
 
 const angle =
-
 (index/names.length)
 *
 Math.PI
@@ -266,10 +270,9 @@ Math.sin(angle)
 *
 radius;
 
-objects.push({
+const obj = {
 
-id:
-"circle"+Date.now()+index,
+id:"circle"+Date.now()+index,
 
 pathwayId,
 
@@ -289,9 +292,34 @@ fill:"#2196f3",
 
 shape:"pill"
 
-});
+};
+
+objects.push(obj);
+
+created.push(obj);
 
 });
+
+
+// CONNECT CIRCLE
+
+for(
+let i=0;
+i<created.length;
+i++
+){
+
+connect(
+
+created[i].id,
+
+created[
+(i+1)%created.length
+].id
+
+);
+
+}
 
 render();
 
@@ -307,80 +335,33 @@ function render(){
 canvas.innerHTML = "";
 
 
-// GROUPS
+// ======================
+// DRAW CONNECTIONS
+// ======================
 
-const pathwayGroups = {};
-
-objects.forEach(obj=>{
-
-if(!pathwayGroups[obj.pathwayId]){
-
-pathwayGroups[obj.pathwayId] = [];
-
-}
-
-pathwayGroups[obj.pathwayId].push(obj);
-
-});
-
-
-// CONNECTIONS
-
-Object.values(pathwayGroups)
-.forEach(group=>{
-
-const metabolites =
-group.filter(
-o=>o.type==="metabolite"
-);
-
-
-// LINEAR
-
-if(group[0].pathwayId.startsWith("linear")){
-
-if(metabolites.length>=2){
-
-drawArrow(
-metabolites[0],
-metabolites[1]
-);
-
-}
-
-}
-
-
-// CIRCULAR
-
-if(group[0].pathwayId.startsWith("circle")){
-
-for(
-let i=0;
-i<metabolites.length;
-i++
-){
+connections.forEach(conn=>{
 
 const left =
-metabolites[i];
+objects.find(
+o=>o.id===conn.from
+);
 
 const right =
-metabolites[
-(i+1)
-%
-metabolites.length
-];
+objects.find(
+o=>o.id===conn.to
+);
+
+if(!left || !right)
+return;
 
 drawArrow(left,right);
 
-}
-
-}
-
 });
 
 
-// OBJECTS
+// ======================
+// DRAW OBJECTS
+// ======================
 
 objects.forEach(obj=>{
 
@@ -654,7 +635,7 @@ render();
 
 
 // ======================
-// APPLY CHANGES
+// APPLY
 // ======================
 
 document.getElementById(
@@ -694,6 +675,18 @@ document.getElementById(
 
 if(!selectedObject)
 return;
+
+
+// REMOVE CONNECTIONS
+
+connections = connections.filter(
+c =>
+c.from !== selectedObject.id &&
+c.to !== selectedObject.id
+);
+
+
+// REMOVE OBJECT
 
 objects = objects.filter(
 o=>o.id!==selectedObject.id
@@ -745,8 +738,13 @@ document.getElementById(
 ).onclick = function(){
 
 localStorage.setItem(
-"biochamp",
+"biochamp_objects",
 JSON.stringify(objects)
+);
+
+localStorage.setItem(
+"biochamp_connections",
+JSON.stringify(connections)
 );
 
 alert("Saved");
@@ -762,20 +760,31 @@ document.getElementById(
 "loadBtn"
 ).onclick = function(){
 
-const data =
+const objData =
 localStorage.getItem(
-"biochamp"
+"biochamp_objects"
 );
 
-if(data){
+const connData =
+localStorage.getItem(
+"biochamp_connections"
+);
 
-objects = JSON.parse(data);
+if(objData){
+
+objects = JSON.parse(objData);
+
+}
+
+if(connData){
+
+connections = JSON.parse(connData);
+
+}
 
 render();
 
 alert("Loaded");
-
-}
 
 };
 
@@ -974,7 +983,7 @@ scale(${scale})
 
 
 // ======================
-// KEYBOARD SHORTCUTS
+// KEYBOARD
 // ======================
 
 window.addEventListener(
@@ -987,6 +996,12 @@ if(e.key==="Delete"){
 
 if(!selectedObject)
 return;
+
+connections = connections.filter(
+c =>
+c.from !== selectedObject.id &&
+c.to !== selectedObject.id
+);
 
 objects = objects.filter(
 o=>o.id!==selectedObject.id
