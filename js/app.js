@@ -560,7 +560,50 @@ draggingCanvas = false;
 window.addEventListener(
 "mousemove",
 function(e){
+if(resizeObject){
 
+const obj =
+objects.find(
+o=>o.id===resizeObject
+);
+
+if(obj){
+
+obj.width = Math.max(
+
+80,
+
+(
+(e.clientX-panX)/scale
+)
+-
+obj.x
++
+obj.width/2
+
+);
+
+obj.height = Math.max(
+
+40,
+
+(
+(e.clientY-panY)/scale
+)
+-
+obj.y
++
+obj.height/2
+
+);
+
+render();
+
+}
+
+return;
+
+}
 if(dragObject){
 
 const obj =
