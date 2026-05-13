@@ -859,15 +859,17 @@ scale(${scale})
 );
 
 }
+// ======================
+// KEYBOARD SHORTCUTS
+// ======================
+
 window.addEventListener(
 "keydown",
 function(e){
 
-// DELETE KEY
+// DELETE
 
-if(
-e.key==="Delete"
-){
+if(e.key==="Delete"){
 
 if(!selectedObject)
 return;
@@ -883,7 +885,7 @@ render();
 }
 
 
-// DUPLICATE SHORTCUT
+// DUPLICATE
 
 if(
 e.ctrlKey &&
@@ -918,3 +920,92 @@ render();
 
 }
 );
+
+
+// ======================
+// CIRCULAR PATHWAY
+// ======================
+
+document.getElementById(
+"circleBtn"
+).onclick = function(){
+
+const names = [
+
+"Oxaloacetate",
+
+"Citrate",
+
+"Isocitrate",
+
+"α-Ketoglutarate",
+
+"Succinyl-CoA",
+
+"Succinate",
+
+"Fumarate",
+
+"Malate"
+
+];
+
+const centerX = 900;
+
+const centerY = 500;
+
+const radius = 320;
+
+
+names.forEach((name,index)=>{
+
+const angle =
+
+(index / names.length)
+*
+Math.PI
+*
+2;
+
+const x =
+
+centerX +
+Math.cos(angle)
+*
+radius;
+
+const y =
+
+centerY +
+Math.sin(angle)
+*
+radius;
+
+objects.push({
+
+id:
+"circle"+Date.now()+index,
+
+type:"metabolite",
+
+label:name,
+
+x,
+
+y,
+
+width:220,
+
+height:100,
+
+fill:"#2196f3",
+
+shape:"pill"
+
+});
+
+});
+
+render();
+
+};
