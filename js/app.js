@@ -1,26 +1,16 @@
 const canvas = document.getElementById("canvas");
 const svg = document.getElementById("viewer");
 
-
-// ======================
-// STATE
-// ======================
-
 let objects = [];
-
 let selectedObject = null;
-
 let adminMode = false;
 
 let scale = 1;
-
 let panX = 0;
 let panY = 0;
 
 let draggingCanvas = false;
-
 let dragObject = null;
-
 let resizeObject = null;
 
 let startX = 0;
@@ -28,121 +18,41 @@ let startY = 0;
 
 
 // ======================
-// CREATE PATHWAY
+// CREATE LINEAR
 // ======================
 
 document.getElementById(
 "linearBtn"
 ).onclick = function(){
 
-const mol1 =
-document.getElementById(
-"mol1"
-).value;
-
-const enzyme =
-document.getElementById(
-"enzyme"
-).value;
-
-const mol2 =
-document.getElementById(
-"mol2"
-).value;
-
-const coIn =
-document.getElementById(
-"coIn"
-).value;
-
-const coOut =
-document.getElementById(
-"coOut"
-).value;
-document.getElementById(
-"circleBtn"
-).onclick = function(){
-
-const names = [
-
-"Oxaloacetate",
-
-"Citrate",
-
-"Isocitrate",
-
-"α-Ketoglutarate",
-
-"Succinyl-CoA",
-
-"Succinate",
-
-"Fumarate",
-
-"Malate"
-
-];
-
-const centerX = 900;
-
-const centerY = 500;
-
-const radius = 320;
-
-
-names.forEach((name,index)=>{
-
-const angle =
-
-(index / names.length)
-*
-Math.PI
-*
-2;
-
-const x =
-
-centerX +
-Math.cos(angle)
-*
-radius;
-
-const y =
-
-centerY +
-Math.sin(angle)
-*
-radius;
-
-objects.push({
-
-id:
-"circle"+Date.now()+index,
-
-type:"metabolite",
-
-label:name,
-
-x,
-
-y,
-
-width:220,
-
-height:100,
-
-fill:"#2196f3",
-
-shape:"pill"
-
-});
-
-});
-
-render();
+createLinear();
 
 };
-// LEFT NODE
+
+
+// ======================
+// CREATE LINEAR FUNCTION
+// ======================
+
+function createLinear(){
+
+const mol1 =
+document.getElementById("mol1").value;
+
+const enzyme =
+document.getElementById("enzyme").value;
+
+const mol2 =
+document.getElementById("mol2").value;
+
+const coIn =
+document.getElementById("coIn").value;
+
+const coOut =
+document.getElementById("coOut").value;
+
+
+// LEFT
 
 objects.push({
 
@@ -167,7 +77,7 @@ shape:"rect"
 });
 
 
-// RIGHT NODE
+// RIGHT
 
 objects.push({
 
@@ -264,6 +174,82 @@ shape:"rect"
 
 render();
 
+}
+
+
+// ======================
+// CREATE CIRCULAR
+// ======================
+
+document.getElementById(
+"circleBtn"
+).onclick = function(){
+
+const names = [
+
+"Oxaloacetate",
+"Citrate",
+"Isocitrate",
+"α-Ketoglutarate",
+"Succinyl-CoA",
+"Succinate",
+"Fumarate",
+"Malate"
+
+];
+
+const centerX = 900;
+const centerY = 500;
+const radius = 320;
+
+
+names.forEach((name,index)=>{
+
+const angle =
+(index/names.length)
+*
+Math.PI
+*
+2;
+
+const x =
+centerX +
+Math.cos(angle)
+*
+radius;
+
+const y =
+centerY +
+Math.sin(angle)
+*
+radius;
+
+objects.push({
+
+id:"circle"+Date.now()+index,
+
+type:"metabolite",
+
+label:name,
+
+x,
+
+y,
+
+width:220,
+
+height:100,
+
+fill:"#2196f3",
+
+shape:"pill"
+
+});
+
+});
+
+render();
+
 };
 
 
@@ -280,7 +266,7 @@ canvas.innerHTML = "";
 
 const metabolites =
 objects.filter(
-o => o.type === "metabolite"
+o => o.type==="metabolite"
 );
 
 for(let i=0;i<metabolites.length-1;i+=2){
@@ -288,7 +274,8 @@ for(let i=0;i<metabolites.length-1;i+=2){
 const left = metabolites[i];
 const right = metabolites[i+1];
 
-if(!left || !right) continue;
+if(!left || !right)
+continue;
 
 const startX =
 left.x + left.width/2;
@@ -307,7 +294,6 @@ const curveX =
 
 const curveY =
 startY - 120;
-
 
 canvas.innerHTML += `
 
@@ -334,6 +320,8 @@ marker-end="url(#arrowhead)"
 />
 
 `;
+
+}
 
 
 // OBJECTS
@@ -376,7 +364,7 @@ return;
 }
 
 
-// SHAPE SYSTEM
+// SHAPES
 
 let rx = 20;
 
@@ -389,7 +377,7 @@ rx = 60;
 }
 
 
-// SELECTED STYLE
+// SELECTED
 
 let selectedClass = "";
 
@@ -397,9 +385,7 @@ if(
 selectedObject &&
 selectedObject.id===obj.id
 ){
-
 selectedClass = "selected";
-
 }
 
 
@@ -409,9 +395,9 @@ canvas.innerHTML += `
 
 <rect
 
-x="${obj.x - obj.width/2}"
+x="${obj.x-obj.width/2}"
 
-y="${obj.y - obj.height/2}"
+y="${obj.y-obj.height/2}"
 
 width="${obj.width}"
 
@@ -435,7 +421,7 @@ data-id="${obj.id}"
 
 x="${obj.x}"
 
-y="${obj.y + 8}"
+y="${obj.y+8}"
 
 fill="white"
 
@@ -519,19 +505,22 @@ svg.addEventListener(
 "click",
 function(e){
 
-if(!adminMode) return;
+if(!adminMode)
+return;
 
 const id =
 e.target.dataset.id;
 
-if(!id) return;
+if(!id)
+return;
 
 selectedObject =
 objects.find(
-o => o.id === id
+o=>o.id===id
 );
 
-if(!selectedObject) return;
+if(!selectedObject)
+return;
 
 document.getElementById(
 "editLabel"
@@ -555,14 +544,15 @@ render();
 
 
 // ======================
-// APPLY CHANGES
+// APPLY
 // ======================
 
 document.getElementById(
 "applyBtn"
 ).onclick = function(){
 
-if(!selectedObject) return;
+if(!selectedObject)
+return;
 
 selectedObject.label =
 document.getElementById(
@@ -584,6 +574,10 @@ render();
 };
 
 
+// ======================
+// DELETE BUTTON
+// ======================
+
 document.getElementById(
 "deleteBtn"
 ).onclick = function(){
@@ -592,7 +586,7 @@ if(!selectedObject)
 return;
 
 objects = objects.filter(
-o => o.id !== selectedObject.id
+o=>o.id!==selectedObject.id
 );
 
 selectedObject = null;
@@ -600,6 +594,12 @@ selectedObject = null;
 render();
 
 };
+
+
+// ======================
+// DUPLICATE BUTTON
+// ======================
+
 document.getElementById(
 "duplicateBtn"
 ).onclick = function(){
@@ -611,14 +611,11 @@ const copy = {
 
 ...selectedObject,
 
-id:
-"copy" + Date.now(),
+id:"copy"+Date.now(),
 
-x:
-selectedObject.x + 80,
+x:selectedObject.x+80,
 
-y:
-selectedObject.y + 80
+y:selectedObject.y+80
 
 };
 
@@ -627,6 +624,8 @@ objects.push(copy);
 render();
 
 };
+
+
 // ======================
 // SAVE
 // ======================
@@ -805,16 +804,18 @@ if(dragObject){
 
 const obj =
 objects.find(
-o => o.id === dragObject
+o=>o.id===dragObject
 );
 
 if(obj){
 
 obj.x =
-(e.clientX - panX)/scale;
+(e.clientX-panX)
+/scale;
 
 obj.y =
-(e.clientY - panY)/scale;
+(e.clientY-panY)
+/scale;
 
 render();
 
@@ -827,13 +828,14 @@ return;
 
 // PAN
 
-if(!draggingCanvas) return;
+if(!draggingCanvas)
+return;
 
 panX =
-e.clientX - startX;
+e.clientX-startX;
 
 panY =
-e.clientY - startY;
+e.clientY-startY;
 
 updateTransform();
 
@@ -859,8 +861,10 @@ scale(${scale})
 );
 
 }
+
+
 // ======================
-// KEYBOARD SHORTCUTS
+// KEYBOARD
 // ======================
 
 window.addEventListener(
@@ -875,7 +879,7 @@ if(!selectedObject)
 return;
 
 objects = objects.filter(
-o => o.id !== selectedObject.id
+o=>o.id!==selectedObject.id
 );
 
 selectedObject = null;
@@ -901,14 +905,11 @@ const copy = {
 
 ...selectedObject,
 
-id:
-"copy"+Date.now(),
+id:"copy"+Date.now(),
 
-x:
-selectedObject.x+80,
+x:selectedObject.x+80,
 
-y:
-selectedObject.y+80
+y:selectedObject.y+80
 
 };
 
@@ -920,92 +921,3 @@ render();
 
 }
 );
-
-
-// ======================
-// CIRCULAR PATHWAY
-// ======================
-
-document.getElementById(
-"circleBtn"
-).onclick = function(){
-
-const names = [
-
-"Oxaloacetate",
-
-"Citrate",
-
-"Isocitrate",
-
-"α-Ketoglutarate",
-
-"Succinyl-CoA",
-
-"Succinate",
-
-"Fumarate",
-
-"Malate"
-
-];
-
-const centerX = 900;
-
-const centerY = 500;
-
-const radius = 320;
-
-
-names.forEach((name,index)=>{
-
-const angle =
-
-(index / names.length)
-*
-Math.PI
-*
-2;
-
-const x =
-
-centerX +
-Math.cos(angle)
-*
-radius;
-
-const y =
-
-centerY +
-Math.sin(angle)
-*
-radius;
-
-objects.push({
-
-id:
-"circle"+Date.now()+index,
-
-type:"metabolite",
-
-label:name,
-
-x,
-
-y,
-
-width:220,
-
-height:100,
-
-fill:"#2196f3",
-
-shape:"pill"
-
-});
-
-});
-
-render();
-
-};
