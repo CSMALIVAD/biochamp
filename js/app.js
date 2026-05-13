@@ -546,7 +546,7 @@ window.addEventListener(
 function(){
 
 dragObject = null;
-
+resizeObject = null;
 draggingCanvas = false;
 
 }
