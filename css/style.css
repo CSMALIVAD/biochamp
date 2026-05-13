@@ -119,3 +119,9 @@ circle{
 cursor:nwse-resize;
 
 }
+
+text{
+
+pointer-events:none;
+
+}
