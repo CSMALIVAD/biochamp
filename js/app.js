@@ -1,17 +1,28 @@
 const canvas = document.getElementById("canvas");
 const svg = document.getElementById("viewer");
 
+
+// ======================
+// STATE
+// ======================
+
 let objects = [];
+
 let selectedObject = null;
+
 let adminMode = false;
 
 let scale = 1;
+
 let panX = 0;
 let panY = 0;
 
 let draggingCanvas = false;
+
 let dragObject = null;
+
 let resizeObject = null;
+
 let startX = 0;
 let startY = 0;
 
@@ -20,25 +31,37 @@ let startY = 0;
 // CREATE PATHWAY
 // ======================
 
-document.getElementById("linearBtn").onclick = function(){
+document.getElementById(
+"linearBtn"
+).onclick = function(){
 
 const mol1 =
-document.getElementById("mol1").value;
+document.getElementById(
+"mol1"
+).value;
 
 const enzyme =
-document.getElementById("enzyme").value;
+document.getElementById(
+"enzyme"
+).value;
 
 const mol2 =
-document.getElementById("mol2").value;
+document.getElementById(
+"mol2"
+).value;
 
 const coIn =
-document.getElementById("coIn").value;
+document.getElementById(
+"coIn"
+).value;
 
 const coOut =
-document.getElementById("coOut").value;
+document.getElementById(
+"coOut"
+).value;
 
 
-// LEFT
+// LEFT NODE
 
 objects.push({
 
@@ -63,7 +86,7 @@ shape:"rect"
 });
 
 
-// RIGHT
+// RIGHT NODE
 
 objects.push({
 
@@ -264,7 +287,21 @@ rx = 60;
 }
 
 
-// DRAW OBJECT
+// SELECTED STYLE
+
+let selectedClass = "";
+
+if(
+selectedObject &&
+selectedObject.id===obj.id
+){
+
+selectedClass = "selected";
+
+}
+
+
+// OBJECT
 
 canvas.innerHTML += `
 
@@ -286,7 +323,7 @@ stroke="white"
 
 stroke-width="2"
 
-class="node"
+class="node ${selectedClass}"
 
 data-id="${obj.id}"
 
@@ -309,6 +346,8 @@ text-anchor="middle"
 ${obj.label}
 
 </text>
+
+
 ${selectedObject &&
 selectedObject.id===obj.id
 ? `
@@ -329,6 +368,7 @@ data-resize="${obj.id}"
 
 `
 : ""}
+
 `;
 
 });
@@ -343,10 +383,14 @@ updateTransform();
 // ADMIN LOGIN
 // ======================
 
-document.getElementById("adminBtn").onclick = function(){
+document.getElementById(
+"adminBtn"
+).onclick = function(){
 
 const pass =
-prompt("Enter Password");
+prompt(
+"Enter Password"
+);
 
 if(pass==="biochamp"){
 
@@ -356,7 +400,9 @@ document.getElementById(
 "adminBar"
 ).style.display = "block";
 
-alert("Admin Enabled");
+alert(
+"Admin Enabled"
+);
 
 }
 
@@ -375,8 +421,7 @@ if(!adminMode) return;
 
 const id =
 e.target.dataset.id;
-const resizeId =
-e.target.dataset.resize;
+
 if(!id) return;
 
 selectedObject =
@@ -400,6 +445,8 @@ document.getElementById(
 "editShape"
 ).value =
 selectedObject.shape;
+
+render();
 
 }
 );
@@ -502,15 +549,16 @@ updateTransform();
 
 
 // ======================
-// DRAG START
+// MOUSE DOWN
 // ======================
 
 svg.addEventListener(
 "mousedown",
 function(e){
 
-const id =
-e.target.dataset.id;
+const resizeId =
+e.target.dataset.resize;
+
 if(resizeId){
 
 resizeObject = resizeId;
@@ -518,9 +566,14 @@ resizeObject = resizeId;
 return;
 
 }
+
+const id =
+e.target.dataset.id;
+
 if(id){
 
 dragObject = id;
+
 return;
 
 }
@@ -538,7 +591,7 @@ e.clientY - panY;
 
 
 // ======================
-// DRAG END
+// MOUSE UP
 // ======================
 
 window.addEventListener(
@@ -546,7 +599,9 @@ window.addEventListener(
 function(){
 
 dragObject = null;
+
 resizeObject = null;
+
 draggingCanvas = false;
 
 }
@@ -554,12 +609,15 @@ draggingCanvas = false;
 
 
 // ======================
-// DRAG MOVE
+// MOUSE MOVE
 // ======================
 
 window.addEventListener(
 "mousemove",
 function(e){
+
+// RESIZE
+
 if(resizeObject){
 
 const obj =
@@ -570,31 +628,21 @@ o=>o.id===resizeObject
 if(obj){
 
 obj.width = Math.max(
-
 80,
-
-(
-(e.clientX-panX)/scale
-)
+((e.clientX-panX)/scale)
 -
 obj.x
 +
 obj.width/2
-
 );
 
 obj.height = Math.max(
-
 40,
-
-(
-(e.clientY-panY)/scale
-)
+((e.clientY-panY)/scale)
 -
 obj.y
 +
 obj.height/2
-
 );
 
 render();
@@ -604,6 +652,10 @@ render();
 return;
 
 }
+
+
+// DRAG OBJECT
+
 if(dragObject){
 
 const obj =
@@ -627,6 +679,8 @@ return;
 
 }
 
+
+// PAN
 
 if(!draggingCanvas) return;
 
